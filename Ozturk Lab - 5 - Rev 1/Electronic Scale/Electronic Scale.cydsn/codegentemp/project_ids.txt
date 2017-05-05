@@ -1,0 +1,5 @@
+C:\Users\Zachary\Desktop\embedded\Ozturk Lab - 5 - Rev 1\Electronic Scale\Electronic Scale.cydsn\Electronic Scale.cyprj|1d7b50c5-a999-4b84-8840-d919e66a43f8
+C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\psoc\content\default\CyAnnotationLibrary\CyAnnotationLibrary.cylib\CyAnnotationLibrary.cyprj|dbd48ea0-b349-4253-927c-e6ca55ddd408
+C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\psoc\content\cycomponentlibraryupdates\CyComponentLibraryUpdates.cylib\CyComponentLibraryUpdates.cyprj|956e54c2-94cd-4a23-91ca-bfc33161060f
+C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\psoc\content\cycomponentlibrary\CyComponentLibrary.cylib\CyComponentLibrary.cyprj|d46ce6aa-1b10-499c-aa41-20e65091077a
+C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\psoc\content\cyprimitives\CyPrimitives.cylib\CyPrimitives.cyprj|8f796d13-7876-441b-9df5-7237d4b7bdac

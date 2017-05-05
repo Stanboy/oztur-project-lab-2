@@ -1,0 +1,4784 @@
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 1
+
+
+   1              		.cpu cortex-m0
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 34, 0
+  11              		.eabi_attribute 18, 4
+  12              		.code	16
+  13              		.file	"hts.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.global	temperatureMeasure
+  18              		.bss
+  19              		.align	1
+  20              		.type	temperatureMeasure, %object
+  21              		.size	temperatureMeasure, 2
+  22              	temperatureMeasure:
+  23 0000 0000     		.space	2
+  24              		.global	temperatureTimer
+  25              		.data
+  26              		.align	2
+  27              		.type	temperatureTimer, %object
+  28              		.size	temperatureTimer, 4
+  29              	temperatureTimer:
+  30 0000 01000000 		.word	1
+  31              		.global	initialMeasurementInterval
+  32              		.align	1
+  33              		.type	initialMeasurementInterval, %object
+  34              		.size	initialMeasurementInterval, 2
+  35              	initialMeasurementInterval:
+  36 0004 0A00     		.short	10
+  37              		.global	temp_data
+  38              		.bss
+  39 0002 0000     		.align	2
+  40              		.type	temp_data, %object
+  41              		.size	temp_data, 5
+  42              	temp_data:
+  43 0004 00000000 		.space	5
+  43      00
+  44              		.section	.rodata
+  45              		.align	2
+  46              	.LC0:
+  47 0000 48545320 		.ascii	"HTS event: %lx, \000"
+  47      6576656E 
+  47      743A2025 
+  47      6C782C20 
+  47      00
+  48 0011 000000   		.align	2
+  49              	.LC3:
+  50 0014 4556545F 		.ascii	"EVT_HTSS_INDICATION_ENABLED: char: %x\015\012\000"
+  50      48545353 
+  50      5F494E44 
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 2
+
+
+  50      49434154 
+  50      494F4E5F 
+  51              		.align	2
+  52              	.LC6:
+  53 003c 4556545F 		.ascii	"EVT_HTSS_INDICATION_DISABLED: char: %x\015\012\000"
+  53      48545353 
+  53      5F494E44 
+  53      49434154 
+  53      494F4E5F 
+  54 0065 000000   		.align	2
+  55              	.LC8:
+  56 0068 4556545F 		.ascii	"EVT_HTSS_INDICATION_CONFIRMED\015\000"
+  56      48545353 
+  56      5F494E44 
+  56      49434154 
+  56      494F4E5F 
+  57 0087 00       		.align	2
+  58              	.LC10:
+  59 0088 4556545F 		.ascii	"EVT_HTSS_CHAR_WRITE: %x \000"
+  59      48545353 
+  59      5F434841 
+  59      525F5752 
+  59      4954453A 
+  60 00a1 000000   		.align	2
+  61              	.LC15:
+  62 00a4 4E6F7420 		.ascii	"Not supported event\015\000"
+  62      73757070 
+  62      6F727465 
+  62      64206576 
+  62      656E740D 
+  63              		.section	.text.HtsCallBack,"ax",%progbits
+  64              		.align	2
+  65              		.global	HtsCallBack
+  66              		.code	16
+  67              		.thumb_func
+  68              		.type	HtsCallBack, %function
+  69              	HtsCallBack:
+  70              	.LFB35:
+  71              		.file 1 ".\\hts.c"
+   1:.\hts.c       **** /*******************************************************************************
+   2:.\hts.c       **** * File Name: hts.c
+   3:.\hts.c       **** *
+   4:.\hts.c       **** * Version: 1.0
+   5:.\hts.c       **** *
+   6:.\hts.c       **** * Description:
+   7:.\hts.c       **** *  This file contains HTS callback handler function.
+   8:.\hts.c       **** *
+   9:.\hts.c       **** * Hardware Dependency:
+  10:.\hts.c       **** *  CY8CKIT-042 BLE
+  11:.\hts.c       **** * 
+  12:.\hts.c       **** ********************************************************************************
+  13:.\hts.c       **** * Copyright 2015, Cypress Semiconductor Corporation.  All rights reserved.
+  14:.\hts.c       **** * You may use this file only in accordance with the license, terms, conditions,
+  15:.\hts.c       **** * disclaimers, and limitations in the end user license agreement accompanying
+  16:.\hts.c       **** * the software package with which this file was provided.
+  17:.\hts.c       **** *******************************************************************************/
+  18:.\hts.c       **** 
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 3
+
+
+  19:.\hts.c       **** #include "common.h"
+  20:.\hts.c       **** #include "hts.h"
+  21:.\hts.c       **** 
+  22:.\hts.c       **** uint16 temperatureMeasure = 0u;
+  23:.\hts.c       **** uint32 temperatureTimer = 1u;
+  24:.\hts.c       **** 
+  25:.\hts.c       **** uint16 initialMeasurementInterval = 10;
+  26:.\hts.c       **** 
+  27:.\hts.c       **** /* Byte order: 
+  28:.\hts.c       **** *   Flags
+  29:.\hts.c       **** *   Temperature in float format (MSB 8 bits - exponent, LSB 24 bits - mantissa) 
+  30:.\hts.c       **** */
+  31:.\hts.c       **** uint8 temp_data[HTS_TEMP_DATA_MIN_SIZE] = {0u, 0u, 0u, 0u, 0u};
+  32:.\hts.c       **** 
+  33:.\hts.c       **** 
+  34:.\hts.c       **** /*******************************************************************************
+  35:.\hts.c       **** * Function Name: HtsCallBack()
+  36:.\hts.c       **** ********************************************************************************
+  37:.\hts.c       **** *
+  38:.\hts.c       **** * Summary:
+  39:.\hts.c       **** *   This is an event callback function to receive service specific events from 
+  40:.\hts.c       **** *   Health Thermometer Service.
+  41:.\hts.c       **** *
+  42:.\hts.c       **** * Parameters:
+  43:.\hts.c       **** *  event - the event code
+  44:.\hts.c       **** *  *eventParam - the event parameters
+  45:.\hts.c       **** *
+  46:.\hts.c       **** * Return:
+  47:.\hts.c       **** *  None.
+  48:.\hts.c       **** *
+  49:.\hts.c       **** *******************************************************************************/
+  50:.\hts.c       **** void HtsCallBack(uint32 event, void *eventParam)
+  51:.\hts.c       **** {
+  72              		.loc 1 51 0
+  73              		.cfi_startproc
+  74 0000 90B5     		push	{r4, r7, lr}
+  75              		.cfi_def_cfa_offset 12
+  76              		.cfi_offset 4, -12
+  77              		.cfi_offset 7, -8
+  78              		.cfi_offset 14, -4
+  79 0002 85B0     		sub	sp, sp, #20
+  80              		.cfi_def_cfa_offset 32
+  81 0004 00AF     		add	r7, sp, #0
+  82              		.cfi_def_cfa_register 7
+  83 0006 7860     		str	r0, [r7, #4]
+  84 0008 3960     		str	r1, [r7]
+  52:.\hts.c       ****     uint8 locCharIndex;
+  53:.\hts.c       ****     locCharIndex = ((CYBLE_HTS_CHAR_VALUE_T *)eventParam)->charIndex;
+  85              		.loc 1 53 0
+  86 000a 3B1C     		mov	r3, r7
+  87 000c 0F33     		add	r3, r3, #15
+  88 000e 3A68     		ldr	r2, [r7]
+  89 0010 9278     		ldrb	r2, [r2, #2]
+  90 0012 1A70     		strb	r2, [r3]
+  54:.\hts.c       ****     printf("HTS event: %lx, ", event);
+  91              		.loc 1 54 0
+  92 0014 394A     		ldr	r2, .L21
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 4
+
+
+  93 0016 7B68     		ldr	r3, [r7, #4]
+  94 0018 101C     		mov	r0, r2
+  95 001a 191C     		mov	r1, r3
+  96 001c FFF7FEFF 		bl	printf
+  55:.\hts.c       **** 
+  56:.\hts.c       ****     switch(event)
+  97              		.loc 1 56 0
+  98 0020 7B68     		ldr	r3, [r7, #4]
+  99 0022 793B     		sub	r3, r3, #121
+ 100 0024 FF3B     		sub	r3, r3, #255
+ 101 0026 0B2B     		cmp	r3, #11
+ 102 0028 5DD8     		bhi	.L2
+ 103 002a 9A00     		lsl	r2, r3, #2
+ 104 002c 344B     		ldr	r3, .L21+4
+ 105 002e D318     		add	r3, r2, r3
+ 106 0030 1B68     		ldr	r3, [r3]
+ 107 0032 9F46     		mov	pc, r3
+ 108              		.section	.rodata
+ 109 00b9 000000   		.align	2
+ 110              	.L4:
+ 111 00bc F2000000 		.word	.L20
+ 112 00c0 F2000000 		.word	.L20
+ 113 00c4 34000000 		.word	.L6
+ 114 00c8 58000000 		.word	.L7
+ 115 00cc 7C000000 		.word	.L8
+ 116 00d0 86000000 		.word	.L9
+ 117 00d4 F2000000 		.word	.L20
+ 118 00d8 F2000000 		.word	.L20
+ 119 00dc F2000000 		.word	.L20
+ 120 00e0 F2000000 		.word	.L20
+ 121 00e4 F2000000 		.word	.L20
+ 122 00e8 F2000000 		.word	.L20
+ 123              		.section	.text.HtsCallBack
+ 124              	.L6:
+  57:.\hts.c       ****     {
+  58:.\hts.c       ****         case CYBLE_EVT_HTSS_NOTIFICATION_ENABLED:
+  59:.\hts.c       ****             break;
+  60:.\hts.c       ****         case CYBLE_EVT_HTSS_NOTIFICATION_DISABLED:
+  61:.\hts.c       ****             break;
+  62:.\hts.c       ****         case CYBLE_EVT_HTSS_INDICATION_ENABLED:
+  63:.\hts.c       ****             printf("EVT_HTSS_INDICATION_ENABLED: char: %x\r\n", locCharIndex);
+ 125              		.loc 1 63 0
+ 126 0034 3B1C     		mov	r3, r7
+ 127 0036 0F33     		add	r3, r3, #15
+ 128 0038 1B78     		ldrb	r3, [r3]
+ 129 003a 324A     		ldr	r2, .L21+8
+ 130 003c 101C     		mov	r0, r2
+ 131 003e 191C     		mov	r1, r3
+ 132 0040 FFF7FEFF 		bl	printf
+  64:.\hts.c       ****             if(locCharIndex == CYBLE_HTS_TEMP_MEASURE)
+ 133              		.loc 1 64 0
+ 134 0044 3B1C     		mov	r3, r7
+ 135 0046 0F33     		add	r3, r3, #15
+ 136 0048 1B78     		ldrb	r3, [r3]
+ 137 004a 002B     		cmp	r3, #0
+ 138 004c 03D1     		bne	.L17
+  65:.\hts.c       ****             {
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 5
+
+
+  66:.\hts.c       ****                 temperatureMeasure = ENABLED;
+ 139              		.loc 1 66 0
+ 140 004e 2E4B     		ldr	r3, .L21+12
+ 141 0050 0122     		mov	r2, #1
+ 142 0052 1A80     		strh	r2, [r3]
+  67:.\hts.c       ****             }
+  68:.\hts.c       ****             break;
+ 143              		.loc 1 68 0
+ 144 0054 4EE0     		b	.L1
+ 145              	.L17:
+ 146 0056 4DE0     		b	.L1
+ 147              	.L7:
+  69:.\hts.c       ****         case CYBLE_EVT_HTSS_INDICATION_DISABLED:
+  70:.\hts.c       ****             printf("EVT_HTSS_INDICATION_DISABLED: char: %x\r\n", locCharIndex);
+ 148              		.loc 1 70 0
+ 149 0058 3B1C     		mov	r3, r7
+ 150 005a 0F33     		add	r3, r3, #15
+ 151 005c 1B78     		ldrb	r3, [r3]
+ 152 005e 2B4A     		ldr	r2, .L21+16
+ 153 0060 101C     		mov	r0, r2
+ 154 0062 191C     		mov	r1, r3
+ 155 0064 FFF7FEFF 		bl	printf
+  71:.\hts.c       ****             if(locCharIndex == CYBLE_HTS_TEMP_MEASURE)
+ 156              		.loc 1 71 0
+ 157 0068 3B1C     		mov	r3, r7
+ 158 006a 0F33     		add	r3, r3, #15
+ 159 006c 1B78     		ldrb	r3, [r3]
+ 160 006e 002B     		cmp	r3, #0
+ 161 0070 03D1     		bne	.L18
+  72:.\hts.c       ****             {
+  73:.\hts.c       ****                 temperatureMeasure = DISABLED;
+ 162              		.loc 1 73 0
+ 163 0072 254B     		ldr	r3, .L21+12
+ 164 0074 0022     		mov	r2, #0
+ 165 0076 1A80     		strh	r2, [r3]
+  74:.\hts.c       ****             }
+  75:.\hts.c       ****             break;
+ 166              		.loc 1 75 0
+ 167 0078 3CE0     		b	.L1
+ 168              	.L18:
+ 169 007a 3BE0     		b	.L1
+ 170              	.L8:
+  76:.\hts.c       ****         case CYBLE_EVT_HTSS_INDICATION_CONFIRMED:
+  77:.\hts.c       ****             printf("EVT_HTSS_INDICATION_CONFIRMED\r\n");
+ 171              		.loc 1 77 0
+ 172 007c 244B     		ldr	r3, .L21+20
+ 173 007e 181C     		mov	r0, r3
+ 174 0080 FFF7FEFF 		bl	puts
+  78:.\hts.c       ****             break;
+ 175              		.loc 1 78 0
+ 176 0084 36E0     		b	.L1
+ 177              	.L9:
+  79:.\hts.c       ****         case CYBLE_EVT_HTSS_CHAR_WRITE:
+  80:.\hts.c       ****             printf("EVT_HTSS_CHAR_WRITE: %x ", locCharIndex);
+ 178              		.loc 1 80 0
+ 179 0086 3B1C     		mov	r3, r7
+ 180 0088 0F33     		add	r3, r3, #15
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 6
+
+
+ 181 008a 1B78     		ldrb	r3, [r3]
+ 182 008c 214A     		ldr	r2, .L21+24
+ 183 008e 101C     		mov	r0, r2
+ 184 0090 191C     		mov	r1, r3
+ 185 0092 FFF7FEFF 		bl	printf
+  81:.\hts.c       ****             ShowValue(((CYBLE_HTS_CHAR_VALUE_T *)eventParam)->value);
+ 186              		.loc 1 81 0
+ 187 0096 3B68     		ldr	r3, [r7]
+ 188 0098 5B68     		ldr	r3, [r3, #4]
+ 189 009a 181C     		mov	r0, r3
+ 190 009c FFF7FEFF 		bl	ShowValue
+  82:.\hts.c       ****             if(locCharIndex == CYBLE_HTS_MEASURE_INTERVAL)
+ 191              		.loc 1 82 0
+ 192 00a0 3B1C     		mov	r3, r7
+ 193 00a2 0F33     		add	r3, r3, #15
+ 194 00a4 1B78     		ldrb	r3, [r3]
+ 195 00a6 032B     		cmp	r3, #3
+ 196 00a8 1CD1     		bne	.L19
+ 197              	.LBB2:
+  83:.\hts.c       ****             {
+  84:.\hts.c       ****                 uint16 interval;
+  85:.\hts.c       ****                 interval = CyBle_Get16ByPtr(((CYBLE_HTS_CHAR_VALUE_T *)eventParam)->value->val);
+ 198              		.loc 1 85 0
+ 199 00aa 3B68     		ldr	r3, [r7]
+ 200 00ac 5B68     		ldr	r3, [r3, #4]
+ 201 00ae 1B68     		ldr	r3, [r3]
+ 202 00b0 3C1C     		mov	r4, r7
+ 203 00b2 0C34     		add	r4, r4, #12
+ 204 00b4 181C     		mov	r0, r3
+ 205 00b6 FFF7FEFF 		bl	CyBle_Get16ByPtr
+ 206 00ba 031C     		mov	r3, r0
+ 207 00bc 2380     		strh	r3, [r4]
+  86:.\hts.c       ****                 
+  87:.\hts.c       ****                 /* Store new interval value */
+  88:.\hts.c       ****                 initialMeasurementInterval = interval;
+ 208              		.loc 1 88 0
+ 209 00be 164B     		ldr	r3, .L21+28
+ 210 00c0 3A1C     		mov	r2, r7
+ 211 00c2 0C32     		add	r2, r2, #12
+ 212 00c4 1288     		ldrh	r2, [r2]
+ 213 00c6 1A80     		strh	r2, [r3]
+  89:.\hts.c       ****                 if(interval != 0u)
+ 214              		.loc 1 89 0
+ 215 00c8 3B1C     		mov	r3, r7
+ 216 00ca 0C33     		add	r3, r3, #12
+ 217 00cc 1B88     		ldrh	r3, [r3]
+ 218 00ce 002B     		cmp	r3, #0
+ 219 00d0 08D0     		beq	.L19
+  90:.\hts.c       ****                 {
+  91:.\hts.c       ****                     /* Reset the measurement interval and start the measurement process. */
+  92:.\hts.c       ****                     temperatureTimer = 1u;
+ 220              		.loc 1 92 0
+ 221 00d2 124B     		ldr	r3, .L21+32
+ 222 00d4 0122     		mov	r2, #1
+ 223 00d6 1A60     		str	r2, [r3]
+  93:.\hts.c       ****                     mainTimer++;
+ 224              		.loc 1 93 0
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 7
+
+
+ 225 00d8 114B     		ldr	r3, .L21+36
+ 226 00da 1B68     		ldr	r3, [r3]
+ 227 00dc 5A1C     		add	r2, r3, #1
+ 228 00de 104B     		ldr	r3, .L21+36
+ 229 00e0 1A60     		str	r2, [r3]
+ 230              	.LBE2:
+  94:.\hts.c       ****                 }
+  95:.\hts.c       ****             }
+  96:.\hts.c       ****             break;
+ 231              		.loc 1 96 0
+ 232 00e2 07E0     		b	.L1
+ 233              	.L19:
+ 234 00e4 06E0     		b	.L1
+ 235              	.L2:
+  97:.\hts.c       ****         case CYBLE_EVT_HTSC_NOTIFICATION:
+  98:.\hts.c       ****             break;
+  99:.\hts.c       ****         case CYBLE_EVT_HTSC_INDICATION:
+ 100:.\hts.c       ****             break;
+ 101:.\hts.c       ****         case CYBLE_EVT_HTSC_READ_CHAR_RESPONSE:
+ 102:.\hts.c       ****             break;
+ 103:.\hts.c       ****         case CYBLE_EVT_HTSC_WRITE_CHAR_RESPONSE:
+ 104:.\hts.c       ****             break;
+ 105:.\hts.c       ****         case CYBLE_EVT_HTSC_READ_DESCR_RESPONSE:
+ 106:.\hts.c       ****             break;
+ 107:.\hts.c       ****         case CYBLE_EVT_HTSC_WRITE_DESCR_RESPONSE:
+ 108:.\hts.c       ****             break;
+ 109:.\hts.c       **** 		default:
+ 110:.\hts.c       ****             printf("Not supported event\r\n");
+ 236              		.loc 1 110 0
+ 237 00e6 0F4B     		ldr	r3, .L21+40
+ 238 00e8 181C     		mov	r0, r3
+ 239 00ea FFF7FEFF 		bl	puts
+ 111:.\hts.c       **** 			break;
+ 240              		.loc 1 111 0
+ 241 00ee C046     		mov	r8, r8
+ 242 00f0 00E0     		b	.L1
+ 243              	.L20:
+ 108:.\hts.c       ****             break;
+ 244              		.loc 1 108 0
+ 245 00f2 C046     		mov	r8, r8
+ 246              	.L1:
+ 112:.\hts.c       ****     }
+ 113:.\hts.c       **** }
+ 247              		.loc 1 113 0
+ 248 00f4 BD46     		mov	sp, r7
+ 249 00f6 05B0     		add	sp, sp, #20
+ 250              		@ sp needed
+ 251 00f8 90BD     		pop	{r4, r7, pc}
+ 252              	.L22:
+ 253 00fa C046     		.align	2
+ 254              	.L21:
+ 255 00fc 00000000 		.word	.LC0
+ 256 0100 BC000000 		.word	.L4
+ 257 0104 14000000 		.word	.LC3
+ 258 0108 00000000 		.word	temperatureMeasure
+ 259 010c 3C000000 		.word	.LC6
+ 260 0110 68000000 		.word	.LC8
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 8
+
+
+ 261 0114 88000000 		.word	.LC10
+ 262 0118 00000000 		.word	initialMeasurementInterval
+ 263 011c 00000000 		.word	temperatureTimer
+ 264 0120 00000000 		.word	mainTimer
+ 265 0124 A4000000 		.word	.LC15
+ 266              		.cfi_endproc
+ 267              	.LFE35:
+ 268              		.size	HtsCallBack, .-HtsCallBack
+ 269              		.global	__aeabi_idiv
+ 270              		.global	__aeabi_i2d
+ 271              		.global	__aeabi_dmul
+ 272              		.global	__aeabi_ddiv
+ 273              		.global	__aeabi_dadd
+ 274              		.global	__aeabi_d2uiz
+ 275              		.section	.rodata
+ 276              		.align	2
+ 277              	.LC24:
+ 278 00ec 4379426C 		.ascii	"CyBle_HtssSendIndication API Error: %x \015\012\000"
+ 278      655F4874 
+ 278      73735365 
+ 278      6E64496E 
+ 278      64696361 
+ 279              		.global	__aeabi_d2iz
+ 280 0116 0000     		.align	2
+ 281              	.LC27:
+ 282 0118 4D656173 		.ascii	"MeasureTemperature: %d %c  \000"
+ 282      75726554 
+ 282      656D7065 
+ 282      72617475 
+ 282      72653A20 
+ 283              		.section	.text.MeasureTemperature,"ax",%progbits
+ 284              		.align	2
+ 285              		.global	MeasureTemperature
+ 286              		.code	16
+ 287              		.thumb_func
+ 288              		.type	MeasureTemperature, %function
+ 289              	MeasureTemperature:
+ 290              	.LFB36:
+ 114:.\hts.c       **** 
+ 115:.\hts.c       **** 
+ 116:.\hts.c       **** /*******************************************************************************
+ 117:.\hts.c       **** * Function Name: MeasureTemperature()
+ 118:.\hts.c       **** ********************************************************************************
+ 119:.\hts.c       **** *
+ 120:.\hts.c       **** * Summary:
+ 121:.\hts.c       **** *   This function measures the die temperature and sends it to the client.
+ 122:.\hts.c       **** *
+ 123:.\hts.c       **** *******************************************************************************/
+ 124:.\hts.c       **** void MeasureTemperature(void)
+ 125:.\hts.c       **** {
+ 291              		.loc 1 125 0
+ 292              		.cfi_startproc
+ 293 0000 B0B5     		push	{r4, r5, r7, lr}
+ 294              		.cfi_def_cfa_offset 16
+ 295              		.cfi_offset 4, -16
+ 296              		.cfi_offset 5, -12
+ 297              		.cfi_offset 7, -8
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 9
+
+
+ 298              		.cfi_offset 14, -4
+ 299 0002 88B0     		sub	sp, sp, #32
+ 300              		.cfi_def_cfa_offset 48
+ 301 0004 00AF     		add	r7, sp, #0
+ 302              		.cfi_def_cfa_register 7
+ 126:.\hts.c       **** 	int32 ADCCountsCorrected;
+ 127:.\hts.c       ****     double temperatureValue;
+ 128:.\hts.c       ****     static double temperatureCelsius;
+ 129:.\hts.c       ****     static uint8 measure = ENABLED; 
+ 130:.\hts.c       ****     int32 adcmVolts;
+ 131:.\hts.c       ****     int16 adcResult;
+ 132:.\hts.c       ****     CYBLE_API_RESULT_T apiResult;
+ 133:.\hts.c       ****     
+ 134:.\hts.c       ****     /* Do not measure temperature when 0 interval is set */
+ 135:.\hts.c       ****     if((initialMeasurementInterval != 0u) && (--temperatureTimer == 0u)) 
+ 303              		.loc 1 135 0
+ 304 0006 784B     		ldr	r3, .L32+32
+ 305 0008 1B88     		ldrh	r3, [r3]
+ 306 000a 002B     		cmp	r3, #0
+ 307 000c 00D1     		bne	.LCB201
+ 308 000e D8E0     		b	.L23	@long jump
+ 309              	.LCB201:
+ 310              		.loc 1 135 0 is_stmt 0 discriminator 1
+ 311 0010 764B     		ldr	r3, .L32+36
+ 312 0012 1B68     		ldr	r3, [r3]
+ 313 0014 5A1E     		sub	r2, r3, #1
+ 314 0016 754B     		ldr	r3, .L32+36
+ 315 0018 1A60     		str	r2, [r3]
+ 316 001a 744B     		ldr	r3, .L32+36
+ 317 001c 1B68     		ldr	r3, [r3]
+ 318 001e 002B     		cmp	r3, #0
+ 319 0020 00D0     		beq	.LCB210
+ 320 0022 CEE0     		b	.L23	@long jump
+ 321              	.LCB210:
+ 136:.\hts.c       ****     {
+ 137:.\hts.c       ****         temperatureTimer = initialMeasurementInterval;
+ 322              		.loc 1 137 0 is_stmt 1
+ 323 0024 704B     		ldr	r3, .L32+32
+ 324 0026 1B88     		ldrh	r3, [r3]
+ 325 0028 1A1C     		mov	r2, r3
+ 326 002a 704B     		ldr	r3, .L32+36
+ 327 002c 1A60     		str	r2, [r3]
+ 138:.\hts.c       ****         
+ 139:.\hts.c       ****         /* Measure Die temperature only first time, later simulate */
+ 140:.\hts.c       ****         if(measure != 0u)
+ 328              		.loc 1 140 0
+ 329 002e 704B     		ldr	r3, .L32+40
+ 330 0030 1B78     		ldrb	r3, [r3]
+ 331 0032 002B     		cmp	r3, #0
+ 332 0034 30D0     		beq	.L25
+ 141:.\hts.c       ****         {
+ 142:.\hts.c       ****             measure = 0u;
+ 333              		.loc 1 142 0
+ 334 0036 6E4B     		ldr	r3, .L32+40
+ 335 0038 0022     		mov	r2, #0
+ 336 003a 1A70     		strb	r2, [r3]
+ 143:.\hts.c       ****             /* Enables injection channel and performs a measurement. */
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 10
+
+
+ 144:.\hts.c       ****             ADC_EnableInjection();
+ 337              		.loc 1 144 0
+ 338 003c FFF7FEFF 		bl	ADC_EnableInjection
+ 145:.\hts.c       ****         	ADC_StartConvert();
+ 339              		.loc 1 145 0
+ 340 0040 FFF7FEFF 		bl	ADC_StartConvert
+ 146:.\hts.c       ****         	ADC_IsEndConversion(ADC_WAIT_FOR_RESULT);
+ 341              		.loc 1 146 0
+ 342 0044 0220     		mov	r0, #2
+ 343 0046 FFF7FEFF 		bl	ADC_IsEndConversion
+ 147:.\hts.c       ****             
+ 148:.\hts.c       ****             /* Read conversion result and adjust data from ADC with respect to Vref value. */
+ 149:.\hts.c       ****         	ADCCountsCorrected = ADC_DEF_TEMP_REF * ADC_GetResult16(ADC_TEMPERATURE_CHANNEL) / ADC_DEF
+ 344              		.loc 1 149 0
+ 345 004a 0120     		mov	r0, #1
+ 346 004c FFF7FEFF 		bl	ADC_GetResult16
+ 347 0050 031C     		mov	r3, r0
+ 348 0052 9B02     		lsl	r3, r3, #10
+ 349 0054 9B0A     		lsr	r3, r3, #10
+ 350 0056 FB61     		str	r3, [r7, #28]
+ 150:.\hts.c       ****        
+ 151:.\hts.c       ****             /* Convert the ADC output to degrees Celsius. */
+ 152:.\hts.c       ****            // temperatureCelsius = DieTemp_CountsTo_Celsius(ADCCountsCorrected);
+ 153:.\hts.c       ****             
+ 154:.\hts.c       ****             adcResult = ADC_GetResult16(0x00);
+ 351              		.loc 1 154 0
+ 352 0058 3C1C     		mov	r4, r7
+ 353 005a 1A34     		add	r4, r4, #26
+ 354 005c 0020     		mov	r0, #0
+ 355 005e FFF7FEFF 		bl	ADC_GetResult16
+ 356 0062 031C     		mov	r3, r0
+ 357 0064 2380     		strh	r3, [r4]
+ 155:.\hts.c       ****     	/* Calculate input voltage by using ratio of ADC counts from reference
+ 156:.\hts.c       ****     	*  and ADC Full Scale counts. 
+ 157:.\hts.c       ****         */
+ 158:.\hts.c       ****     	    adcmVolts = ADC_CountsTo_mVolts(0x00,adcResult);
+ 358              		.loc 1 158 0
+ 359 0066 3B1C     		mov	r3, r7
+ 360 0068 1A33     		add	r3, r3, #26
+ 361 006a 0022     		mov	r2, #0
+ 362 006c 9B5E     		ldrsh	r3, [r3, r2]
+ 363 006e 0020     		mov	r0, #0
+ 364 0070 191C     		mov	r1, r3
+ 365 0072 FFF7FEFF 		bl	ADC_CountsTo_mVolts
+ 366 0076 031C     		mov	r3, r0
+ 367 0078 7B61     		str	r3, [r7, #20]
+ 159:.\hts.c       ****             
+ 160:.\hts.c       ****             temperatureCelsius = adcmVolts / 10;
+ 368              		.loc 1 160 0
+ 369 007a 7B69     		ldr	r3, [r7, #20]
+ 370 007c 181C     		mov	r0, r3
+ 371 007e 0A21     		mov	r1, #10
+ 372 0080 FFF7FEFF 		bl	__aeabi_idiv
+ 373 0084 031C     		mov	r3, r0
+ 374 0086 181C     		mov	r0, r3
+ 375 0088 FFF7FEFF 		bl	__aeabi_i2d
+ 376 008c 031C     		mov	r3, r0
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 11
+
+
+ 377 008e 0C1C     		mov	r4, r1
+ 378 0090 584A     		ldr	r2, .L32+44
+ 379 0092 1360     		str	r3, [r2]
+ 380 0094 5460     		str	r4, [r2, #4]
+ 381 0096 23E0     		b	.L26
+ 382              	.L25:
+ 161:.\hts.c       **** 
+ 162:.\hts.c       ****         }
+ 163:.\hts.c       ****         else /* Temperature Simulation */
+ 164:.\hts.c       ****         {
+ 165:.\hts.c       ****            // temperatureCelsius += SIM_TEMPERATURE_INCREMENT;
+ 166:.\hts.c       ****             //if(temperatureCelsius > SIM_TEMPERATURE_MAX)
+ 167:.\hts.c       ****             //{
+ 168:.\hts.c       ****              //   temperatureCelsius = SIM_TEMPERATURE_MIN; 
+ 169:.\hts.c       ****             //}
+ 170:.\hts.c       ****             
+ 171:.\hts.c       ****             adcResult = ADC_GetResult16(0x00);
+ 383              		.loc 1 171 0
+ 384 0098 3C1C     		mov	r4, r7
+ 385 009a 1A34     		add	r4, r4, #26
+ 386 009c 0020     		mov	r0, #0
+ 387 009e FFF7FEFF 		bl	ADC_GetResult16
+ 388 00a2 031C     		mov	r3, r0
+ 389 00a4 2380     		strh	r3, [r4]
+ 172:.\hts.c       ****     	/* Calculate input voltage by using ratio of ADC counts from reference
+ 173:.\hts.c       ****     	*  and ADC Full Scale counts. 
+ 174:.\hts.c       ****         */
+ 175:.\hts.c       ****     	    adcmVolts = ADC_CountsTo_mVolts(0x00,adcResult);
+ 390              		.loc 1 175 0
+ 391 00a6 3B1C     		mov	r3, r7
+ 392 00a8 1A33     		add	r3, r3, #26
+ 393 00aa 0022     		mov	r2, #0
+ 394 00ac 9B5E     		ldrsh	r3, [r3, r2]
+ 395 00ae 0020     		mov	r0, #0
+ 396 00b0 191C     		mov	r1, r3
+ 397 00b2 FFF7FEFF 		bl	ADC_CountsTo_mVolts
+ 398 00b6 031C     		mov	r3, r0
+ 399 00b8 7B61     		str	r3, [r7, #20]
+ 176:.\hts.c       ****             
+ 177:.\hts.c       ****             temperatureCelsius = adcmVolts/10;
+ 400              		.loc 1 177 0
+ 401 00ba 7B69     		ldr	r3, [r7, #20]
+ 402 00bc 181C     		mov	r0, r3
+ 403 00be 0A21     		mov	r1, #10
+ 404 00c0 FFF7FEFF 		bl	__aeabi_idiv
+ 405 00c4 031C     		mov	r3, r0
+ 406 00c6 181C     		mov	r0, r3
+ 407 00c8 FFF7FEFF 		bl	__aeabi_i2d
+ 408 00cc 031C     		mov	r3, r0
+ 409 00ce 0C1C     		mov	r4, r1
+ 410 00d0 484A     		ldr	r2, .L32+44
+ 411 00d2 1360     		str	r3, [r2]
+ 412 00d4 5460     		str	r4, [r2, #4]
+ 178:.\hts.c       ****             
+ 179:.\hts.c       ****             temperatureValue = temperatureCelsius;
+ 413              		.loc 1 179 0
+ 414 00d6 474B     		ldr	r3, .L32+44
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 12
+
+
+ 415 00d8 5C68     		ldr	r4, [r3, #4]
+ 416 00da 1B68     		ldr	r3, [r3]
+ 417 00dc BB60     		str	r3, [r7, #8]
+ 418 00de FC60     		str	r4, [r7, #12]
+ 419              	.L26:
+ 180:.\hts.c       ****             
+ 181:.\hts.c       ****         }
+ 182:.\hts.c       ****         
+ 183:.\hts.c       ****         /* Convert Celsius to Fahrenheit if required */
+ 184:.\hts.c       ****         if((temp_data[0] & CYBLE_HTS_MEAS_FLAG_TEMP_UNITS_BIT) != 0u)
+ 420              		.loc 1 184 0
+ 421 00e0 454B     		ldr	r3, .L32+48
+ 422 00e2 1B78     		ldrb	r3, [r3]
+ 423 00e4 1A1C     		mov	r2, r3
+ 424 00e6 0123     		mov	r3, #1
+ 425 00e8 1340     		and	r3, r2
+ 426 00ea 1DD0     		beq	.L27
+ 185:.\hts.c       ****         {
+ 186:.\hts.c       ****             temperatureValue = 32 + ((temperatureCelsius * 9) / 5);
+ 427              		.loc 1 186 0
+ 428 00ec 414B     		ldr	r3, .L32+44
+ 429 00ee 5C68     		ldr	r4, [r3, #4]
+ 430 00f0 1B68     		ldr	r3, [r3]
+ 431 00f2 181C     		mov	r0, r3
+ 432 00f4 211C     		mov	r1, r4
+ 433 00f6 354B     		ldr	r3, .L32+4
+ 434 00f8 334A     		ldr	r2, .L32
+ 435 00fa FFF7FEFF 		bl	__aeabi_dmul
+ 436 00fe 031C     		mov	r3, r0
+ 437 0100 0C1C     		mov	r4, r1
+ 438 0102 181C     		mov	r0, r3
+ 439 0104 211C     		mov	r1, r4
+ 440 0106 324A     		ldr	r2, .L32+8
+ 441 0108 324B     		ldr	r3, .L32+12
+ 442 010a FFF7FEFF 		bl	__aeabi_ddiv
+ 443 010e 031C     		mov	r3, r0
+ 444 0110 0C1C     		mov	r4, r1
+ 445 0112 181C     		mov	r0, r3
+ 446 0114 211C     		mov	r1, r4
+ 447 0116 304A     		ldr	r2, .L32+16
+ 448 0118 304B     		ldr	r3, .L32+20
+ 449 011a FFF7FEFF 		bl	__aeabi_dadd
+ 450 011e 031C     		mov	r3, r0
+ 451 0120 0C1C     		mov	r4, r1
+ 452 0122 BB60     		str	r3, [r7, #8]
+ 453 0124 FC60     		str	r4, [r7, #12]
+ 454 0126 04E0     		b	.L28
+ 455              	.L27:
+ 187:.\hts.c       ****             
+ 188:.\hts.c       ****             
+ 189:.\hts.c       ****         }
+ 190:.\hts.c       ****         else
+ 191:.\hts.c       ****         {
+ 192:.\hts.c       ****             temperatureValue = temperatureCelsius;
+ 456              		.loc 1 192 0
+ 457 0128 324B     		ldr	r3, .L32+44
+ 458 012a 5C68     		ldr	r4, [r3, #4]
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 13
+
+
+ 459 012c 1B68     		ldr	r3, [r3]
+ 460 012e BB60     		str	r3, [r7, #8]
+ 461 0130 FC60     		str	r4, [r7, #12]
+ 462              	.L28:
+ 193:.\hts.c       ****         }
+ 194:.\hts.c       ****         
+ 195:.\hts.c       ****         /* Convert int32 to the IEEE-11073 FLOAT-Type.
+ 196:.\hts.c       ****         *  It is defined as a 32-bit value with a 24-bit mantissa and an 8-bit exponent.
+ 197:.\hts.c       ****         *  For the integer temperature, 24-bit value has been used with mantissa equal to 0 */
+ 198:.\hts.c       ****         //temperatureValue &= 0x00FFFFFF;
+ 199:.\hts.c       **** 
+ 200:.\hts.c       ****         /* Copy temperature to array */
+ 201:.\hts.c       ****         
+ 202:.\hts.c       ****         temperatureValue = 65;
+ 463              		.loc 1 202 0
+ 464 0132 2B4B     		ldr	r3, .L32+24
+ 465 0134 2B4C     		ldr	r4, .L32+28
+ 466 0136 BB60     		str	r3, [r7, #8]
+ 467 0138 FC60     		str	r4, [r7, #12]
+ 203:.\hts.c       ****         
+ 204:.\hts.c       ****         Set32ByPtr(temp_data + 1u, (double)temperatureValue);
+ 468              		.loc 1 204 0
+ 469 013a B868     		ldr	r0, [r7, #8]
+ 470 013c F968     		ldr	r1, [r7, #12]
+ 471 013e FFF7FEFF 		bl	__aeabi_d2uiz
+ 472 0142 031C     		mov	r3, r0
+ 473 0144 2D4A     		ldr	r2, .L32+52
+ 474 0146 101C     		mov	r0, r2
+ 475 0148 191C     		mov	r1, r3
+ 476 014a FFF7FEFF 		bl	Set32ByPtr
+ 205:.\hts.c       ****         
+ 206:.\hts.c       ****         /* Send temperature to client */
+ 207:.\hts.c       ****         apiResult = CyBle_HtssSendIndication(cyBle_connHandle, CYBLE_HTS_TEMP_MEASURE, 
+ 477              		.loc 1 207 0
+ 478 014e BC1D     		add	r4, r7, #6
+ 479 0150 2B4B     		ldr	r3, .L32+56
+ 480 0152 294D     		ldr	r5, .L32+48
+ 481 0154 1A78     		ldrb	r2, [r3]
+ 482 0156 5B78     		ldrb	r3, [r3, #1]
+ 483 0158 1B02     		lsl	r3, r3, #8
+ 484 015a 1A43     		orr	r2, r3
+ 485 015c 0023     		mov	r3, #0
+ 486 015e 1204     		lsl	r2, r2, #16
+ 487 0160 120C     		lsr	r2, r2, #16
+ 488 0162 1B0C     		lsr	r3, r3, #16
+ 489 0164 1B04     		lsl	r3, r3, #16
+ 490 0166 1343     		orr	r3, r2
+ 491 0168 181C     		mov	r0, r3
+ 492 016a 0021     		mov	r1, #0
+ 493 016c 0522     		mov	r2, #5
+ 494 016e 2B1C     		mov	r3, r5
+ 495 0170 FFF7FEFF 		bl	CyBle_HtssSendIndication
+ 496 0174 031C     		mov	r3, r0
+ 497 0176 2380     		strh	r3, [r4]
+ 208:.\hts.c       ****                         sizeof(temp_data), temp_data);
+ 209:.\hts.c       ****         if(apiResult != CYBLE_ERROR_OK)
+ 498              		.loc 1 209 0
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 14
+
+
+ 499 0178 BB1D     		add	r3, r7, #6
+ 500 017a 1B88     		ldrh	r3, [r3]
+ 501 017c 002B     		cmp	r3, #0
+ 502 017e 0AD0     		beq	.L29
+ 210:.\hts.c       ****         {
+ 211:.\hts.c       ****             printf("CyBle_HtssSendIndication API Error: %x \r\n", apiResult);
+ 503              		.loc 1 211 0
+ 504 0180 BB1D     		add	r3, r7, #6
+ 505 0182 1B88     		ldrh	r3, [r3]
+ 506 0184 1F4A     		ldr	r2, .L32+60
+ 507 0186 101C     		mov	r0, r2
+ 508 0188 191C     		mov	r1, r3
+ 509 018a FFF7FEFF 		bl	printf
+ 212:.\hts.c       ****             temperatureMeasure = DISABLED;
+ 510              		.loc 1 212 0
+ 511 018e 1E4B     		ldr	r3, .L32+64
+ 512 0190 0022     		mov	r2, #0
+ 513 0192 1A80     		strh	r2, [r3]
+ 514 0194 15E0     		b	.L23
+ 515              	.L29:
+ 213:.\hts.c       ****         }
+ 214:.\hts.c       ****         else
+ 215:.\hts.c       ****         {
+ 216:.\hts.c       ****             printf("MeasureTemperature: %d %c  ", (int16)temperatureValue,
+ 516              		.loc 1 216 0
+ 517 0196 B868     		ldr	r0, [r7, #8]
+ 518 0198 F968     		ldr	r1, [r7, #12]
+ 519 019a FFF7FEFF 		bl	__aeabi_d2iz
+ 520 019e 031C     		mov	r3, r0
+ 521 01a0 9BB2     		uxth	r3, r3
+ 522 01a2 1AB2     		sxth	r2, r3
+ 217:.\hts.c       ****             (((temp_data[0] & CYBLE_HTS_MEAS_FLAG_TEMP_UNITS_BIT) != 0u) ? 'F' : 'C'));
+ 523              		.loc 1 217 0
+ 524 01a4 144B     		ldr	r3, .L32+48
+ 525 01a6 1B78     		ldrb	r3, [r3]
+ 526 01a8 191C     		mov	r1, r3
+ 527 01aa 0123     		mov	r3, #1
+ 528 01ac 0B40     		and	r3, r1
+ 216:.\hts.c       ****             printf("MeasureTemperature: %d %c  ", (int16)temperatureValue,
+ 529              		.loc 1 216 0
+ 530 01ae 01D0     		beq	.L30
+ 216:.\hts.c       ****             printf("MeasureTemperature: %d %c  ", (int16)temperatureValue,
+ 531              		.loc 1 216 0 is_stmt 0 discriminator 1
+ 532 01b0 4623     		mov	r3, #70
+ 533 01b2 00E0     		b	.L31
+ 534              	.L30:
+ 216:.\hts.c       ****             printf("MeasureTemperature: %d %c  ", (int16)temperatureValue,
+ 535              		.loc 1 216 0 discriminator 2
+ 536 01b4 4323     		mov	r3, #67
+ 537              	.L31:
+ 216:.\hts.c       ****             printf("MeasureTemperature: %d %c  ", (int16)temperatureValue,
+ 538              		.loc 1 216 0 discriminator 3
+ 539 01b6 1549     		ldr	r1, .L32+68
+ 540 01b8 081C     		mov	r0, r1
+ 541 01ba 111C     		mov	r1, r2
+ 542 01bc 1A1C     		mov	r2, r3
+ 543 01be FFF7FEFF 		bl	printf
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 15
+
+
+ 544              	.L23:
+ 218:.\hts.c       ****         }
+ 219:.\hts.c       ****         
+ 220:.\hts.c       ****         /* Toggle the temperature unit flag on each temperature update */
+ 221:.\hts.c       ****         //temp_data[0] ^= CYBLE_HTS_MEAS_FLAG_TEMP_UNITS_BIT;
+ 222:.\hts.c       ****     }
+ 223:.\hts.c       **** }
+ 545              		.loc 1 223 0 is_stmt 1
+ 546 01c2 BD46     		mov	sp, r7
+ 547 01c4 08B0     		add	sp, sp, #32
+ 548              		@ sp needed
+ 549 01c6 B0BD     		pop	{r4, r5, r7, pc}
+ 550              	.L33:
+ 551              		.align	3
+ 552              	.L32:
+ 553 01c8 00000000 		.word	0
+ 554 01cc 00002240 		.word	1075970048
+ 555 01d0 00000000 		.word	0
+ 556 01d4 00001440 		.word	1075052544
+ 557 01d8 00000000 		.word	0
+ 558 01dc 00004040 		.word	1077936128
+ 559 01e0 00000000 		.word	0
+ 560 01e4 00405040 		.word	1079001088
+ 561 01e8 00000000 		.word	initialMeasurementInterval
+ 562 01ec 00000000 		.word	temperatureTimer
+ 563 01f0 06000000 		.word	measure.7494
+ 564 01f4 10000000 		.word	temperatureCelsius.7493
+ 565 01f8 00000000 		.word	temp_data
+ 566 01fc 01000000 		.word	temp_data+1
+ 567 0200 00000000 		.word	cyBle_connHandle
+ 568 0204 EC000000 		.word	.LC24
+ 569 0208 00000000 		.word	temperatureMeasure
+ 570 020c 18010000 		.word	.LC27
+ 571              		.cfi_endproc
+ 572              	.LFE36:
+ 573              		.size	MeasureTemperature, .-MeasureTemperature
+ 574              		.data
+ 575              		.type	measure.7494, %object
+ 576              		.size	measure.7494, 1
+ 577              	measure.7494:
+ 578 0006 01       		.byte	1
+ 579 0007 00       		.bss
+ 580 0009 00000000 		.align	3
+ 580      000000
+ 581              	temperatureCelsius.7493:
+ 582 0010 00000000 		.space	8
+ 582      00000000 
+ 583              		.text
+ 584              	.Letext0:
+ 585              		.file 2 ".\\Generated_Source\\PSoC4/cytypes.h"
+ 586              		.file 3 ".\\Generated_Source\\PSoC4/BLE_Stack.h"
+ 587              		.file 4 ".\\Generated_Source\\PSoC4/BLE_StackGatt.h"
+ 588              		.file 5 ".\\Generated_Source\\PSoC4/BLE_dis.h"
+ 589              		.file 6 ".\\Generated_Source\\PSoC4/BLE_hts.h"
+ 590              		.file 7 ".\\Generated_Source\\PSoC4/BLE_eventHandler.h"
+ 591              		.file 8 ".\\common.h"
+ 592              		.section	.debug_info,"",%progbits
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 16
+
+
+ 593              	.Ldebug_info0:
+ 594 0000 F40A0000 		.4byte	0xaf4
+ 595 0004 0400     		.2byte	0x4
+ 596 0006 00000000 		.4byte	.Ldebug_abbrev0
+ 597 000a 04       		.byte	0x4
+ 598 000b 01       		.uleb128 0x1
+ 599 000c 72170000 		.4byte	.LASF347
+ 600 0010 01       		.byte	0x1
+ 601 0011 4D0B0000 		.4byte	.LASF348
+ 602 0015 3B0F0000 		.4byte	.LASF349
+ 603 0019 00000000 		.4byte	.Ldebug_ranges0+0
+ 604 001d 00000000 		.4byte	0
+ 605 0021 00000000 		.4byte	.Ldebug_line0
+ 606 0025 02       		.uleb128 0x2
+ 607 0026 01       		.byte	0x1
+ 608 0027 06       		.byte	0x6
+ 609 0028 15090000 		.4byte	.LASF0
+ 610 002c 02       		.uleb128 0x2
+ 611 002d 01       		.byte	0x1
+ 612 002e 08       		.byte	0x8
+ 613 002f B6090000 		.4byte	.LASF1
+ 614 0033 02       		.uleb128 0x2
+ 615 0034 02       		.byte	0x2
+ 616 0035 05       		.byte	0x5
+ 617 0036 49210000 		.4byte	.LASF2
+ 618 003a 02       		.uleb128 0x2
+ 619 003b 02       		.byte	0x2
+ 620 003c 07       		.byte	0x7
+ 621 003d C7250000 		.4byte	.LASF3
+ 622 0041 02       		.uleb128 0x2
+ 623 0042 04       		.byte	0x4
+ 624 0043 05       		.byte	0x5
+ 625 0044 FB060000 		.4byte	.LASF4
+ 626 0048 02       		.uleb128 0x2
+ 627 0049 04       		.byte	0x4
+ 628 004a 07       		.byte	0x7
+ 629 004b 4E110000 		.4byte	.LASF5
+ 630 004f 02       		.uleb128 0x2
+ 631 0050 08       		.byte	0x8
+ 632 0051 05       		.byte	0x5
+ 633 0052 03140000 		.4byte	.LASF6
+ 634 0056 02       		.uleb128 0x2
+ 635 0057 08       		.byte	0x8
+ 636 0058 07       		.byte	0x7
+ 637 0059 951C0000 		.4byte	.LASF7
+ 638 005d 03       		.uleb128 0x3
+ 639 005e 04       		.byte	0x4
+ 640 005f 05       		.byte	0x5
+ 641 0060 696E7400 		.ascii	"int\000"
+ 642 0064 02       		.uleb128 0x2
+ 643 0065 04       		.byte	0x4
+ 644 0066 07       		.byte	0x7
+ 645 0067 C0160000 		.4byte	.LASF8
+ 646 006b 04       		.uleb128 0x4
+ 647 006c EB200000 		.4byte	.LASF9
+ 648 0070 02       		.byte	0x2
+ 649 0071 A1       		.byte	0xa1
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 17
+
+
+ 650 0072 2C000000 		.4byte	0x2c
+ 651 0076 04       		.uleb128 0x4
+ 652 0077 F6270000 		.4byte	.LASF10
+ 653 007b 02       		.byte	0x2
+ 654 007c A2       		.byte	0xa2
+ 655 007d 3A000000 		.4byte	0x3a
+ 656 0081 04       		.uleb128 0x4
+ 657 0082 17020000 		.4byte	.LASF11
+ 658 0086 02       		.byte	0x2
+ 659 0087 A3       		.byte	0xa3
+ 660 0088 48000000 		.4byte	0x48
+ 661 008c 04       		.uleb128 0x4
+ 662 008d A3230000 		.4byte	.LASF12
+ 663 0091 02       		.byte	0x2
+ 664 0092 A5       		.byte	0xa5
+ 665 0093 33000000 		.4byte	0x33
+ 666 0097 04       		.uleb128 0x4
+ 667 0098 20260000 		.4byte	.LASF13
+ 668 009c 02       		.byte	0x2
+ 669 009d A6       		.byte	0xa6
+ 670 009e 41000000 		.4byte	0x41
+ 671 00a2 02       		.uleb128 0x2
+ 672 00a3 04       		.byte	0x4
+ 673 00a4 04       		.byte	0x4
+ 674 00a5 0E160000 		.4byte	.LASF14
+ 675 00a9 02       		.uleb128 0x2
+ 676 00aa 08       		.byte	0x8
+ 677 00ab 04       		.byte	0x4
+ 678 00ac EF140000 		.4byte	.LASF15
+ 679 00b0 02       		.uleb128 0x2
+ 680 00b1 01       		.byte	0x1
+ 681 00b2 08       		.byte	0x8
+ 682 00b3 2C0B0000 		.4byte	.LASF16
+ 683 00b7 05       		.uleb128 0x5
+ 684 00b8 81000000 		.4byte	0x81
+ 685 00bc 02       		.uleb128 0x2
+ 686 00bd 04       		.byte	0x4
+ 687 00be 07       		.byte	0x7
+ 688 00bf 66000000 		.4byte	.LASF17
+ 689 00c3 06       		.uleb128 0x6
+ 690 00c4 04       		.byte	0x4
+ 691 00c5 07       		.uleb128 0x7
+ 692 00c6 01       		.byte	0x1
+ 693 00c7 03       		.byte	0x3
+ 694 00c8 58       		.byte	0x58
+ 695 00c9 35020000 		.4byte	0x235
+ 696 00cd 08       		.uleb128 0x8
+ 697 00ce 740B0000 		.4byte	.LASF18
+ 698 00d2 00       		.sleb128 0
+ 699 00d3 08       		.uleb128 0x8
+ 700 00d4 BF070000 		.4byte	.LASF19
+ 701 00d8 01       		.sleb128 1
+ 702 00d9 08       		.uleb128 0x8
+ 703 00da BF1C0000 		.4byte	.LASF20
+ 704 00de 02       		.sleb128 2
+ 705 00df 08       		.uleb128 0x8
+ 706 00e0 44090000 		.4byte	.LASF21
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 18
+
+
+ 707 00e4 03       		.sleb128 3
+ 708 00e5 08       		.uleb128 0x8
+ 709 00e6 B4260000 		.4byte	.LASF22
+ 710 00ea 04       		.sleb128 4
+ 711 00eb 08       		.uleb128 0x8
+ 712 00ec DC240000 		.4byte	.LASF23
+ 713 00f0 05       		.sleb128 5
+ 714 00f1 08       		.uleb128 0x8
+ 715 00f2 8A220000 		.4byte	.LASF24
+ 716 00f6 20       		.sleb128 32
+ 717 00f7 08       		.uleb128 0x8
+ 718 00f8 3B050000 		.4byte	.LASF25
+ 719 00fc 21       		.sleb128 33
+ 720 00fd 08       		.uleb128 0x8
+ 721 00fe 7D130000 		.4byte	.LASF26
+ 722 0102 22       		.sleb128 34
+ 723 0103 08       		.uleb128 0x8
+ 724 0104 27190000 		.4byte	.LASF27
+ 725 0108 23       		.sleb128 35
+ 726 0109 08       		.uleb128 0x8
+ 727 010a 31100000 		.4byte	.LASF28
+ 728 010e 24       		.sleb128 36
+ 729 010f 08       		.uleb128 0x8
+ 730 0110 71100000 		.4byte	.LASF29
+ 731 0114 25       		.sleb128 37
+ 732 0115 08       		.uleb128 0x8
+ 733 0116 7B200000 		.4byte	.LASF30
+ 734 011a 26       		.sleb128 38
+ 735 011b 08       		.uleb128 0x8
+ 736 011c AC010000 		.4byte	.LASF31
+ 737 0120 27       		.sleb128 39
+ 738 0121 08       		.uleb128 0x8
+ 739 0122 6F270000 		.4byte	.LASF32
+ 740 0126 28       		.sleb128 40
+ 741 0127 08       		.uleb128 0x8
+ 742 0128 021B0000 		.4byte	.LASF33
+ 743 012c 29       		.sleb128 41
+ 744 012d 08       		.uleb128 0x8
+ 745 012e BA120000 		.4byte	.LASF34
+ 746 0132 2A       		.sleb128 42
+ 747 0133 08       		.uleb128 0x8
+ 748 0134 8C180000 		.4byte	.LASF35
+ 749 0138 2B       		.sleb128 43
+ 750 0139 08       		.uleb128 0x8
+ 751 013a 1C250000 		.4byte	.LASF36
+ 752 013e 2C       		.sleb128 44
+ 753 013f 08       		.uleb128 0x8
+ 754 0140 B7210000 		.4byte	.LASF37
+ 755 0144 C000     		.sleb128 64
+ 756 0146 08       		.uleb128 0x8
+ 757 0147 EE010000 		.4byte	.LASF38
+ 758 014b C100     		.sleb128 65
+ 759 014d 08       		.uleb128 0x8
+ 760 014e C9260000 		.4byte	.LASF39
+ 761 0152 C200     		.sleb128 66
+ 762 0154 08       		.uleb128 0x8
+ 763 0155 791B0000 		.4byte	.LASF40
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 19
+
+
+ 764 0159 C300     		.sleb128 67
+ 765 015b 08       		.uleb128 0x8
+ 766 015c C4090000 		.4byte	.LASF41
+ 767 0160 C400     		.sleb128 68
+ 768 0162 08       		.uleb128 0x8
+ 769 0163 6C090000 		.4byte	.LASF42
+ 770 0167 C500     		.sleb128 69
+ 771 0169 08       		.uleb128 0x8
+ 772 016a F21E0000 		.4byte	.LASF43
+ 773 016e C600     		.sleb128 70
+ 774 0170 08       		.uleb128 0x8
+ 775 0171 D41E0000 		.4byte	.LASF44
+ 776 0175 C700     		.sleb128 71
+ 777 0177 08       		.uleb128 0x8
+ 778 0178 E00A0000 		.4byte	.LASF45
+ 779 017c C800     		.sleb128 72
+ 780 017e 08       		.uleb128 0x8
+ 781 017f 7F190000 		.4byte	.LASF46
+ 782 0183 C900     		.sleb128 73
+ 783 0185 08       		.uleb128 0x8
+ 784 0186 CB0B0000 		.4byte	.LASF47
+ 785 018a CA00     		.sleb128 74
+ 786 018c 08       		.uleb128 0x8
+ 787 018d 550B0000 		.4byte	.LASF48
+ 788 0191 CB00     		.sleb128 75
+ 789 0193 08       		.uleb128 0x8
+ 790 0194 CF180000 		.4byte	.LASF49
+ 791 0198 CC00     		.sleb128 76
+ 792 019a 08       		.uleb128 0x8
+ 793 019b 22200000 		.4byte	.LASF50
+ 794 019f CD00     		.sleb128 77
+ 795 01a1 08       		.uleb128 0x8
+ 796 01a2 B9060000 		.4byte	.LASF51
+ 797 01a6 CE00     		.sleb128 78
+ 798 01a8 08       		.uleb128 0x8
+ 799 01a9 CD160000 		.4byte	.LASF52
+ 800 01ad CF00     		.sleb128 79
+ 801 01af 08       		.uleb128 0x8
+ 802 01b0 6B220000 		.4byte	.LASF53
+ 803 01b4 D000     		.sleb128 80
+ 804 01b6 08       		.uleb128 0x8
+ 805 01b7 2F0C0000 		.4byte	.LASF54
+ 806 01bb D100     		.sleb128 81
+ 807 01bd 08       		.uleb128 0x8
+ 808 01be 1A050000 		.4byte	.LASF55
+ 809 01c2 D200     		.sleb128 82
+ 810 01c4 08       		.uleb128 0x8
+ 811 01c5 5C240000 		.4byte	.LASF56
+ 812 01c9 D300     		.sleb128 83
+ 813 01cb 08       		.uleb128 0x8
+ 814 01cc B1270000 		.4byte	.LASF57
+ 815 01d0 D400     		.sleb128 84
+ 816 01d2 08       		.uleb128 0x8
+ 817 01d3 F0030000 		.4byte	.LASF58
+ 818 01d7 D500     		.sleb128 85
+ 819 01d9 08       		.uleb128 0x8
+ 820 01da 40250000 		.4byte	.LASF59
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 20
+
+
+ 821 01de F000     		.sleb128 112
+ 822 01e0 08       		.uleb128 0x8
+ 823 01e1 150F0000 		.4byte	.LASF60
+ 824 01e5 F100     		.sleb128 113
+ 825 01e7 08       		.uleb128 0x8
+ 826 01e8 93080000 		.4byte	.LASF61
+ 827 01ec F200     		.sleb128 114
+ 828 01ee 08       		.uleb128 0x8
+ 829 01ef 4D220000 		.4byte	.LASF62
+ 830 01f3 F300     		.sleb128 115
+ 831 01f5 08       		.uleb128 0x8
+ 832 01f6 D4190000 		.4byte	.LASF63
+ 833 01fa F400     		.sleb128 116
+ 834 01fc 08       		.uleb128 0x8
+ 835 01fd 41130000 		.4byte	.LASF64
+ 836 0201 F500     		.sleb128 117
+ 837 0203 08       		.uleb128 0x8
+ 838 0204 BF0A0000 		.4byte	.LASF65
+ 839 0208 F600     		.sleb128 118
+ 840 020a 08       		.uleb128 0x8
+ 841 020b 0E1D0000 		.4byte	.LASF66
+ 842 020f F700     		.sleb128 119
+ 843 0211 08       		.uleb128 0x8
+ 844 0212 14040000 		.4byte	.LASF67
+ 845 0216 F800     		.sleb128 120
+ 846 0218 08       		.uleb128 0x8
+ 847 0219 5C0A0000 		.4byte	.LASF68
+ 848 021d F900     		.sleb128 121
+ 849 021f 08       		.uleb128 0x8
+ 850 0220 0D270000 		.4byte	.LASF69
+ 851 0224 FA00     		.sleb128 122
+ 852 0226 08       		.uleb128 0x8
+ 853 0227 18150000 		.4byte	.LASF70
+ 854 022b FA01     		.sleb128 250
+ 855 022d 08       		.uleb128 0x8
+ 856 022e 7E180000 		.4byte	.LASF71
+ 857 0232 FF01     		.sleb128 255
+ 858 0234 00       		.byte	0
+ 859 0235 09       		.uleb128 0x9
+ 860 0236 02       		.byte	0x2
+ 861 0237 03       		.byte	0x3
+ 862 0238 9A01     		.2byte	0x19a
+ 863 023a 01030000 		.4byte	0x301
+ 864 023e 08       		.uleb128 0x8
+ 865 023f 5D090000 		.4byte	.LASF72
+ 866 0243 00       		.sleb128 0
+ 867 0244 08       		.uleb128 0x8
+ 868 0245 270D0000 		.4byte	.LASF73
+ 869 0249 01       		.sleb128 1
+ 870 024a 08       		.uleb128 0x8
+ 871 024b 96260000 		.4byte	.LASF74
+ 872 024f 02       		.sleb128 2
+ 873 0250 08       		.uleb128 0x8
+ 874 0251 390E0000 		.4byte	.LASF75
+ 875 0255 03       		.sleb128 3
+ 876 0256 08       		.uleb128 0x8
+ 877 0257 E1100000 		.4byte	.LASF76
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 21
+
+
+ 878 025b 04       		.sleb128 4
+ 879 025c 08       		.uleb128 0x8
+ 880 025d AE140000 		.4byte	.LASF77
+ 881 0261 05       		.sleb128 5
+ 882 0262 08       		.uleb128 0x8
+ 883 0263 A9230000 		.4byte	.LASF78
+ 884 0267 06       		.sleb128 6
+ 885 0268 08       		.uleb128 0x8
+ 886 0269 AE0B0000 		.4byte	.LASF79
+ 887 026d 07       		.sleb128 7
+ 888 026e 08       		.uleb128 0x8
+ 889 026f F0150000 		.4byte	.LASF80
+ 890 0273 08       		.sleb128 8
+ 891 0274 08       		.uleb128 0x8
+ 892 0275 E3220000 		.4byte	.LASF81
+ 893 0279 09       		.sleb128 9
+ 894 027a 08       		.uleb128 0x8
+ 895 027b FD270000 		.4byte	.LASF82
+ 896 027f 0A       		.sleb128 10
+ 897 0280 08       		.uleb128 0x8
+ 898 0281 B1050000 		.4byte	.LASF83
+ 899 0285 0B       		.sleb128 11
+ 900 0286 08       		.uleb128 0x8
+ 901 0287 C5240000 		.4byte	.LASF84
+ 902 028b 0C       		.sleb128 12
+ 903 028c 08       		.uleb128 0x8
+ 904 028d 11180000 		.4byte	.LASF85
+ 905 0291 0D       		.sleb128 13
+ 906 0292 08       		.uleb128 0x8
+ 907 0293 E2110000 		.4byte	.LASF86
+ 908 0297 0E       		.sleb128 14
+ 909 0298 08       		.uleb128 0x8
+ 910 0299 89140000 		.4byte	.LASF87
+ 911 029d 0F       		.sleb128 15
+ 912 029e 08       		.uleb128 0x8
+ 913 029f 6D030000 		.4byte	.LASF88
+ 914 02a3 10       		.sleb128 16
+ 915 02a4 08       		.uleb128 0x8
+ 916 02a5 CC150000 		.4byte	.LASF89
+ 917 02a9 11       		.sleb128 17
+ 918 02aa 08       		.uleb128 0x8
+ 919 02ab D2070000 		.4byte	.LASF90
+ 920 02af 12       		.sleb128 18
+ 921 02b0 08       		.uleb128 0x8
+ 922 02b1 ED080000 		.4byte	.LASF91
+ 923 02b5 13       		.sleb128 19
+ 924 02b6 08       		.uleb128 0x8
+ 925 02b7 F6140000 		.4byte	.LASF92
+ 926 02bb 27       		.sleb128 39
+ 927 02bc 08       		.uleb128 0x8
+ 928 02bd 53160000 		.4byte	.LASF93
+ 929 02c1 28       		.sleb128 40
+ 930 02c2 08       		.uleb128 0x8
+ 931 02c3 AE030000 		.4byte	.LASF94
+ 932 02c7 29       		.sleb128 41
+ 933 02c8 08       		.uleb128 0x8
+ 934 02c9 E20E0000 		.4byte	.LASF95
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 22
+
+
+ 935 02cd FF01     		.sleb128 255
+ 936 02cf 08       		.uleb128 0x8
+ 937 02d0 A8100000 		.4byte	.LASF96
+ 938 02d4 8002     		.sleb128 256
+ 939 02d6 08       		.uleb128 0x8
+ 940 02d7 8C250000 		.4byte	.LASF97
+ 941 02db 8102     		.sleb128 257
+ 942 02dd 08       		.uleb128 0x8
+ 943 02de 050E0000 		.4byte	.LASF98
+ 944 02e2 8202     		.sleb128 258
+ 945 02e4 08       		.uleb128 0x8
+ 946 02e5 66190000 		.4byte	.LASF99
+ 947 02e9 8302     		.sleb128 259
+ 948 02eb 08       		.uleb128 0x8
+ 949 02ec 4D190000 		.4byte	.LASF100
+ 950 02f0 8402     		.sleb128 260
+ 951 02f2 08       		.uleb128 0x8
+ 952 02f3 53080000 		.4byte	.LASF101
+ 953 02f7 8502     		.sleb128 261
+ 954 02f9 08       		.uleb128 0x8
+ 955 02fa F41C0000 		.4byte	.LASF102
+ 956 02fe 8602     		.sleb128 262
+ 957 0300 00       		.byte	0
+ 958 0301 0A       		.uleb128 0xa
+ 959 0302 C3230000 		.4byte	.LASF103
+ 960 0306 03       		.byte	0x3
+ 961 0307 F401     		.2byte	0x1f4
+ 962 0309 35020000 		.4byte	0x235
+ 963 030d 0B       		.uleb128 0xb
+ 964 030e 04       		.byte	0x4
+ 965 030f 6B000000 		.4byte	0x6b
+ 966 0313 0C       		.uleb128 0xc
+ 967 0314 02       		.byte	0x2
+ 968 0315 04       		.byte	0x4
+ 969 0316 5501     		.2byte	0x155
+ 970 0318 37030000 		.4byte	0x337
+ 971 031c 0D       		.uleb128 0xd
+ 972 031d EE050000 		.4byte	.LASF104
+ 973 0321 04       		.byte	0x4
+ 974 0322 5C01     		.2byte	0x15c
+ 975 0324 6B000000 		.4byte	0x6b
+ 976 0328 00       		.byte	0
+ 977 0329 0D       		.uleb128 0xd
+ 978 032a 90260000 		.4byte	.LASF105
+ 979 032e 04       		.byte	0x4
+ 980 032f 6201     		.2byte	0x162
+ 981 0331 6B000000 		.4byte	0x6b
+ 982 0335 01       		.byte	0x1
+ 983 0336 00       		.byte	0
+ 984 0337 0A       		.uleb128 0xa
+ 985 0338 7A050000 		.4byte	.LASF106
+ 986 033c 04       		.byte	0x4
+ 987 033d 6401     		.2byte	0x164
+ 988 033f 13030000 		.4byte	0x313
+ 989 0343 0C       		.uleb128 0xc
+ 990 0344 08       		.byte	0x8
+ 991 0345 04       		.byte	0x4
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 23
+
+
+ 992 0346 7901     		.2byte	0x179
+ 993 0348 74030000 		.4byte	0x374
+ 994 034c 0E       		.uleb128 0xe
+ 995 034d 76616C00 		.ascii	"val\000"
+ 996 0351 04       		.byte	0x4
+ 997 0352 7C01     		.2byte	0x17c
+ 998 0354 0D030000 		.4byte	0x30d
+ 999 0358 00       		.byte	0
+ 1000 0359 0E       		.uleb128 0xe
+ 1001 035a 6C656E00 		.ascii	"len\000"
+ 1002 035e 04       		.byte	0x4
+ 1003 035f 7F01     		.2byte	0x17f
+ 1004 0361 76000000 		.4byte	0x76
+ 1005 0365 04       		.byte	0x4
+ 1006 0366 0D       		.uleb128 0xd
+ 1007 0367 26260000 		.4byte	.LASF107
+ 1008 036b 04       		.byte	0x4
+ 1009 036c 8601     		.2byte	0x186
+ 1010 036e 76000000 		.4byte	0x76
+ 1011 0372 06       		.byte	0x6
+ 1012 0373 00       		.byte	0
+ 1013 0374 0A       		.uleb128 0xa
+ 1014 0375 37040000 		.4byte	.LASF108
+ 1015 0379 04       		.byte	0x4
+ 1016 037a 8801     		.2byte	0x188
+ 1017 037c 43030000 		.4byte	0x343
+ 1018 0380 0B       		.uleb128 0xb
+ 1019 0381 04       		.byte	0x4
+ 1020 0382 74030000 		.4byte	0x374
+ 1021 0386 07       		.uleb128 0x7
+ 1022 0387 01       		.byte	0x1
+ 1023 0388 05       		.byte	0x5
+ 1024 0389 1D       		.byte	0x1d
+ 1025 038a CB030000 		.4byte	0x3cb
+ 1026 038e 08       		.uleb128 0x8
+ 1027 038f 321C0000 		.4byte	.LASF109
+ 1028 0393 00       		.sleb128 0
+ 1029 0394 08       		.uleb128 0x8
+ 1030 0395 C70C0000 		.4byte	.LASF110
+ 1031 0399 01       		.sleb128 1
+ 1032 039a 08       		.uleb128 0x8
+ 1033 039b 87120000 		.4byte	.LASF111
+ 1034 039f 02       		.sleb128 2
+ 1035 03a0 08       		.uleb128 0x8
+ 1036 03a1 F5070000 		.4byte	.LASF112
+ 1037 03a5 03       		.sleb128 3
+ 1038 03a6 08       		.uleb128 0x8
+ 1039 03a7 03050000 		.4byte	.LASF113
+ 1040 03ab 04       		.sleb128 4
+ 1041 03ac 08       		.uleb128 0x8
+ 1042 03ad 710C0000 		.4byte	.LASF114
+ 1043 03b1 05       		.sleb128 5
+ 1044 03b2 08       		.uleb128 0x8
+ 1045 03b3 130D0000 		.4byte	.LASF115
+ 1046 03b7 06       		.sleb128 6
+ 1047 03b8 08       		.uleb128 0x8
+ 1048 03b9 34170000 		.4byte	.LASF116
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 24
+
+
+ 1049 03bd 07       		.sleb128 7
+ 1050 03be 08       		.uleb128 0x8
+ 1051 03bf 33140000 		.4byte	.LASF117
+ 1052 03c3 08       		.sleb128 8
+ 1053 03c4 08       		.uleb128 0x8
+ 1054 03c5 51000000 		.4byte	.LASF118
+ 1055 03c9 09       		.sleb128 9
+ 1056 03ca 00       		.byte	0
+ 1057 03cb 07       		.uleb128 0x7
+ 1058 03cc 01       		.byte	0x1
+ 1059 03cd 06       		.byte	0x6
+ 1060 03ce 1C       		.byte	0x1c
+ 1061 03cf F2030000 		.4byte	0x3f2
+ 1062 03d3 08       		.uleb128 0x8
+ 1063 03d4 A0210000 		.4byte	.LASF119
+ 1064 03d8 00       		.sleb128 0
+ 1065 03d9 08       		.uleb128 0x8
+ 1066 03da 731D0000 		.4byte	.LASF120
+ 1067 03de 01       		.sleb128 1
+ 1068 03df 08       		.uleb128 0x8
+ 1069 03e0 63070000 		.4byte	.LASF121
+ 1070 03e4 02       		.sleb128 2
+ 1071 03e5 08       		.uleb128 0x8
+ 1072 03e6 9F120000 		.4byte	.LASF122
+ 1073 03ea 03       		.sleb128 3
+ 1074 03eb 08       		.uleb128 0x8
+ 1075 03ec 641B0000 		.4byte	.LASF123
+ 1076 03f0 04       		.sleb128 4
+ 1077 03f1 00       		.byte	0
+ 1078 03f2 04       		.uleb128 0x4
+ 1079 03f3 06130000 		.4byte	.LASF124
+ 1080 03f7 06       		.byte	0x6
+ 1081 03f8 23       		.byte	0x23
+ 1082 03f9 CB030000 		.4byte	0x3cb
+ 1083 03fd 07       		.uleb128 0x7
+ 1084 03fe 01       		.byte	0x1
+ 1085 03ff 06       		.byte	0x6
+ 1086 0400 27       		.byte	0x27
+ 1087 0401 18040000 		.4byte	0x418
+ 1088 0405 08       		.uleb128 0x8
+ 1089 0406 5E030000 		.4byte	.LASF125
+ 1090 040a 00       		.sleb128 0
+ 1091 040b 08       		.uleb128 0x8
+ 1092 040c 09020000 		.4byte	.LASF126
+ 1093 0410 01       		.sleb128 1
+ 1094 0411 08       		.uleb128 0x8
+ 1095 0412 060A0000 		.4byte	.LASF127
+ 1096 0416 02       		.sleb128 2
+ 1097 0417 00       		.byte	0
+ 1098 0418 0F       		.uleb128 0xf
+ 1099 0419 08       		.byte	0x8
+ 1100 041a 06       		.byte	0x6
+ 1101 041b 54       		.byte	0x54
+ 1102 041c 45040000 		.4byte	0x445
+ 1103 0420 10       		.uleb128 0x10
+ 1104 0421 5D1E0000 		.4byte	.LASF128
+ 1105 0425 06       		.byte	0x6
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 25
+
+
+ 1106 0426 56       		.byte	0x56
+ 1107 0427 37030000 		.4byte	0x337
+ 1108 042b 00       		.byte	0
+ 1109 042c 10       		.uleb128 0x10
+ 1110 042d E6000000 		.4byte	.LASF129
+ 1111 0431 06       		.byte	0x6
+ 1112 0432 57       		.byte	0x57
+ 1113 0433 F2030000 		.4byte	0x3f2
+ 1114 0437 02       		.byte	0x2
+ 1115 0438 10       		.uleb128 0x10
+ 1116 0439 2D1D0000 		.4byte	.LASF130
+ 1117 043d 06       		.byte	0x6
+ 1118 043e 58       		.byte	0x58
+ 1119 043f 80030000 		.4byte	0x380
+ 1120 0443 04       		.byte	0x4
+ 1121 0444 00       		.byte	0
+ 1122 0445 04       		.uleb128 0x4
+ 1123 0446 04070000 		.4byte	.LASF131
+ 1124 044a 06       		.byte	0x6
+ 1125 044b 59       		.byte	0x59
+ 1126 044c 18040000 		.4byte	0x418
+ 1127 0450 07       		.uleb128 0x7
+ 1128 0451 02       		.byte	0x2
+ 1129 0452 07       		.byte	0x7
+ 1130 0453 80       		.byte	0x80
+ 1131 0454 B6090000 		.4byte	0x9b6
+ 1132 0458 08       		.uleb128 0x8
+ 1133 0459 EE170000 		.4byte	.LASF132
+ 1134 045d 8002     		.sleb128 256
+ 1135 045f 08       		.uleb128 0x8
+ 1136 0460 31270000 		.4byte	.LASF133
+ 1137 0464 8102     		.sleb128 257
+ 1138 0466 08       		.uleb128 0x8
+ 1139 0467 9D070000 		.4byte	.LASF134
+ 1140 046b 8202     		.sleb128 258
+ 1141 046d 08       		.uleb128 0x8
+ 1142 046e E7260000 		.4byte	.LASF135
+ 1143 0472 8302     		.sleb128 259
+ 1144 0474 08       		.uleb128 0x8
+ 1145 0475 721C0000 		.4byte	.LASF136
+ 1146 0479 8402     		.sleb128 260
+ 1147 047b 08       		.uleb128 0x8
+ 1148 047c 5F210000 		.4byte	.LASF137
+ 1149 0480 8502     		.sleb128 261
+ 1150 0482 08       		.uleb128 0x8
+ 1151 0483 7F0A0000 		.4byte	.LASF138
+ 1152 0487 8602     		.sleb128 262
+ 1153 0489 08       		.uleb128 0x8
+ 1154 048a AF080000 		.4byte	.LASF139
+ 1155 048e 8702     		.sleb128 263
+ 1156 0490 08       		.uleb128 0x8
+ 1157 0491 A1250000 		.4byte	.LASF140
+ 1158 0495 8802     		.sleb128 264
+ 1159 0497 08       		.uleb128 0x8
+ 1160 0498 CA030000 		.4byte	.LASF141
+ 1161 049c 8902     		.sleb128 265
+ 1162 049e 08       		.uleb128 0x8
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 26
+
+
+ 1163 049f 1E020000 		.4byte	.LASF142
+ 1164 04a3 8A02     		.sleb128 266
+ 1165 04a5 08       		.uleb128 0x8
+ 1166 04a6 E21D0000 		.4byte	.LASF143
+ 1167 04aa 8B02     		.sleb128 267
+ 1168 04ac 08       		.uleb128 0x8
+ 1169 04ad 44140000 		.4byte	.LASF144
+ 1170 04b1 8C02     		.sleb128 268
+ 1171 04b3 08       		.uleb128 0x8
+ 1172 04b4 421B0000 		.4byte	.LASF145
+ 1173 04b8 8D02     		.sleb128 269
+ 1174 04ba 08       		.uleb128 0x8
+ 1175 04bb AF020000 		.4byte	.LASF146
+ 1176 04bf 8E02     		.sleb128 270
+ 1177 04c1 08       		.uleb128 0x8
+ 1178 04c2 36150000 		.4byte	.LASF147
+ 1179 04c6 8F02     		.sleb128 271
+ 1180 04c8 08       		.uleb128 0x8
+ 1181 04c9 52050000 		.4byte	.LASF148
+ 1182 04cd 9002     		.sleb128 272
+ 1183 04cf 08       		.uleb128 0x8
+ 1184 04d0 FA230000 		.4byte	.LASF149
+ 1185 04d4 9102     		.sleb128 273
+ 1186 04d6 08       		.uleb128 0x8
+ 1187 04d7 AB180000 		.4byte	.LASF150
+ 1188 04db 9202     		.sleb128 274
+ 1189 04dd 08       		.uleb128 0x8
+ 1190 04de 3C280000 		.4byte	.LASF151
+ 1191 04e2 9302     		.sleb128 275
+ 1192 04e4 08       		.uleb128 0x8
+ 1193 04e5 33220000 		.4byte	.LASF152
+ 1194 04e9 9402     		.sleb128 276
+ 1195 04eb 08       		.uleb128 0x8
+ 1196 04ec 53270000 		.4byte	.LASF153
+ 1197 04f0 9502     		.sleb128 277
+ 1198 04f2 08       		.uleb128 0x8
+ 1199 04f3 C0110000 		.4byte	.LASF154
+ 1200 04f7 9602     		.sleb128 278
+ 1201 04f9 08       		.uleb128 0x8
+ 1202 04fa AB0F0000 		.4byte	.LASF155
+ 1203 04fe 9702     		.sleb128 279
+ 1204 0500 08       		.uleb128 0x8
+ 1205 0501 3B030000 		.4byte	.LASF156
+ 1206 0505 9802     		.sleb128 280
+ 1207 0507 08       		.uleb128 0x8
+ 1208 0508 EC1B0000 		.4byte	.LASF157
+ 1209 050c 9902     		.sleb128 281
+ 1210 050e 08       		.uleb128 0x8
+ 1211 050f 25120000 		.4byte	.LASF158
+ 1212 0513 9A02     		.sleb128 282
+ 1213 0515 08       		.uleb128 0x8
+ 1214 0516 681E0000 		.4byte	.LASF159
+ 1215 051a 9B02     		.sleb128 283
+ 1216 051c 08       		.uleb128 0x8
+ 1217 051d D1210000 		.4byte	.LASF160
+ 1218 0521 9C02     		.sleb128 284
+ 1219 0523 08       		.uleb128 0x8
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 27
+
+
+ 1220 0524 3D230000 		.4byte	.LASF161
+ 1221 0528 9D02     		.sleb128 285
+ 1222 052a 08       		.uleb128 0x8
+ 1223 052b 21090000 		.4byte	.LASF162
+ 1224 052f 9E02     		.sleb128 286
+ 1225 0531 08       		.uleb128 0x8
+ 1226 0532 ED210000 		.4byte	.LASF163
+ 1227 0536 9F02     		.sleb128 287
+ 1228 0538 08       		.uleb128 0x8
+ 1229 0539 AA040000 		.4byte	.LASF164
+ 1230 053d A002     		.sleb128 288
+ 1231 053f 08       		.uleb128 0x8
+ 1232 0540 11170000 		.4byte	.LASF165
+ 1233 0544 A102     		.sleb128 289
+ 1234 0546 08       		.uleb128 0x8
+ 1235 0547 A3200000 		.4byte	.LASF166
+ 1236 054b A202     		.sleb128 290
+ 1237 054d 08       		.uleb128 0x8
+ 1238 054e EF0C0000 		.4byte	.LASF167
+ 1239 0552 A302     		.sleb128 291
+ 1240 0554 08       		.uleb128 0x8
+ 1241 0555 36180000 		.4byte	.LASF168
+ 1242 0559 A402     		.sleb128 292
+ 1243 055b 08       		.uleb128 0x8
+ 1244 055c A60E0000 		.4byte	.LASF169
+ 1245 0560 A502     		.sleb128 293
+ 1246 0562 08       		.uleb128 0x8
+ 1247 0563 CC040000 		.4byte	.LASF170
+ 1248 0567 A602     		.sleb128 294
+ 1249 0569 08       		.uleb128 0x8
+ 1250 056a 8A010000 		.4byte	.LASF171
+ 1251 056e A702     		.sleb128 295
+ 1252 0570 08       		.uleb128 0x8
+ 1253 0571 2D060000 		.4byte	.LASF172
+ 1254 0575 A802     		.sleb128 296
+ 1255 0577 08       		.uleb128 0x8
+ 1256 0578 4F1D0000 		.4byte	.LASF173
+ 1257 057c A902     		.sleb128 297
+ 1258 057e 08       		.uleb128 0x8
+ 1259 057f CC140000 		.4byte	.LASF174
+ 1260 0583 AA02     		.sleb128 298
+ 1261 0585 08       		.uleb128 0x8
+ 1262 0586 D6230000 		.4byte	.LASF175
+ 1263 058a AB02     		.sleb128 299
+ 1264 058c 08       		.uleb128 0x8
+ 1265 058d FF050000 		.4byte	.LASF176
+ 1266 0591 AC02     		.sleb128 300
+ 1267 0593 08       		.uleb128 0x8
+ 1268 0594 491A0000 		.4byte	.LASF177
+ 1269 0598 AD02     		.sleb128 301
+ 1270 059a 08       		.uleb128 0x8
+ 1271 059b 66250000 		.4byte	.LASF178
+ 1272 059f AE02     		.sleb128 302
+ 1273 05a1 08       		.uleb128 0x8
+ 1274 05a2 1D240000 		.4byte	.LASF179
+ 1275 05a6 AF02     		.sleb128 303
+ 1276 05a8 08       		.uleb128 0x8
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 28
+
+
+ 1277 05a9 89000000 		.4byte	.LASF180
+ 1278 05ad B002     		.sleb128 304
+ 1279 05af 08       		.uleb128 0x8
+ 1280 05b0 83210000 		.4byte	.LASF181
+ 1281 05b4 B102     		.sleb128 305
+ 1282 05b6 08       		.uleb128 0x8
+ 1283 05b7 E3120000 		.4byte	.LASF182
+ 1284 05bb B202     		.sleb128 306
+ 1285 05bd 08       		.uleb128 0x8
+ 1286 05be C7200000 		.4byte	.LASF183
+ 1287 05c2 B302     		.sleb128 307
+ 1288 05c4 08       		.uleb128 0x8
+ 1289 05c5 391F0000 		.4byte	.LASF184
+ 1290 05c9 B402     		.sleb128 308
+ 1291 05cb 08       		.uleb128 0x8
+ 1292 05cc 35010000 		.4byte	.LASF185
+ 1293 05d0 B502     		.sleb128 309
+ 1294 05d2 08       		.uleb128 0x8
+ 1295 05d3 8D1E0000 		.4byte	.LASF186
+ 1296 05d7 B602     		.sleb128 310
+ 1297 05d9 08       		.uleb128 0x8
+ 1298 05da 1C0A0000 		.4byte	.LASF187
+ 1299 05de B702     		.sleb128 311
+ 1300 05e0 08       		.uleb128 0x8
+ 1301 05e1 73060000 		.4byte	.LASF188
+ 1302 05e5 B802     		.sleb128 312
+ 1303 05e7 08       		.uleb128 0x8
+ 1304 05e8 50060000 		.4byte	.LASF189
+ 1305 05ec B902     		.sleb128 313
+ 1306 05ee 08       		.uleb128 0x8
+ 1307 05ef E2090000 		.4byte	.LASF190
+ 1308 05f3 BA02     		.sleb128 314
+ 1309 05f5 08       		.uleb128 0x8
+ 1310 05f6 C6130000 		.4byte	.LASF191
+ 1311 05fa BB02     		.sleb128 315
+ 1312 05fc 08       		.uleb128 0x8
+ 1313 05fd 6E260000 		.4byte	.LASF192
+ 1314 0601 BC02     		.sleb128 316
+ 1315 0603 08       		.uleb128 0x8
+ 1316 0604 880C0000 		.4byte	.LASF193
+ 1317 0608 BD02     		.sleb128 317
+ 1318 060a 08       		.uleb128 0x8
+ 1319 060b 331D0000 		.4byte	.LASF194
+ 1320 060f BE02     		.sleb128 318
+ 1321 0611 08       		.uleb128 0x8
+ 1322 0612 98190000 		.4byte	.LASF195
+ 1323 0616 BF02     		.sleb128 319
+ 1324 0618 08       		.uleb128 0x8
+ 1325 0619 F0000000 		.4byte	.LASF196
+ 1326 061d C002     		.sleb128 320
+ 1327 061f 08       		.uleb128 0x8
+ 1328 0620 64120000 		.4byte	.LASF197
+ 1329 0624 C102     		.sleb128 321
+ 1330 0626 08       		.uleb128 0x8
+ 1331 0627 A4000000 		.4byte	.LASF198
+ 1332 062b C202     		.sleb128 322
+ 1333 062d 08       		.uleb128 0x8
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 29
+
+
+ 1334 062e D7060000 		.4byte	.LASF199
+ 1335 0632 C302     		.sleb128 323
+ 1336 0634 08       		.uleb128 0x8
+ 1337 0635 7D240000 		.4byte	.LASF200
+ 1338 0639 C402     		.sleb128 324
+ 1339 063b 08       		.uleb128 0x8
+ 1340 063c 810E0000 		.4byte	.LASF201
+ 1341 0640 C502     		.sleb128 325
+ 1342 0642 08       		.uleb128 0x8
+ 1343 0643 970D0000 		.4byte	.LASF202
+ 1344 0647 C602     		.sleb128 326
+ 1345 0649 08       		.uleb128 0x8
+ 1346 064a 4A040000 		.4byte	.LASF203
+ 1347 064e C702     		.sleb128 327
+ 1348 0650 08       		.uleb128 0x8
+ 1349 0651 1B070000 		.4byte	.LASF204
+ 1350 0655 C802     		.sleb128 328
+ 1351 0657 08       		.uleb128 0x8
+ 1352 0658 A4150000 		.4byte	.LASF205
+ 1353 065c C902     		.sleb128 329
+ 1354 065e 08       		.uleb128 0x8
+ 1355 065f 62130000 		.4byte	.LASF206
+ 1356 0663 CA02     		.sleb128 330
+ 1357 0665 08       		.uleb128 0x8
+ 1358 0666 D1050000 		.4byte	.LASF207
+ 1359 066a CB02     		.sleb128 331
+ 1360 066c 08       		.uleb128 0x8
+ 1361 066d E8040000 		.4byte	.LASF208
+ 1362 0671 CC02     		.sleb128 332
+ 1363 0673 08       		.uleb128 0x8
+ 1364 0674 12010000 		.4byte	.LASF209
+ 1365 0678 CD02     		.sleb128 333
+ 1366 067a 08       		.uleb128 0x8
+ 1367 067b 1D130000 		.4byte	.LASF210
+ 1368 067f CE02     		.sleb128 334
+ 1369 0681 08       		.uleb128 0x8
+ 1370 0682 D2270000 		.4byte	.LASF211
+ 1371 0686 CF02     		.sleb128 335
+ 1372 0688 08       		.uleb128 0x8
+ 1373 0689 381E0000 		.4byte	.LASF212
+ 1374 068d D002     		.sleb128 336
+ 1375 068f 08       		.uleb128 0x8
+ 1376 0690 BD0D0000 		.4byte	.LASF213
+ 1377 0694 D102     		.sleb128 337
+ 1378 0696 08       		.uleb128 0x8
+ 1379 0697 EC160000 		.4byte	.LASF214
+ 1380 069b D202     		.sleb128 338
+ 1381 069d 08       		.uleb128 0x8
+ 1382 069e A31D0000 		.4byte	.LASF215
+ 1383 06a2 D302     		.sleb128 339
+ 1384 06a4 08       		.uleb128 0x8
+ 1385 06a5 8D020000 		.4byte	.LASF216
+ 1386 06a9 D402     		.sleb128 340
+ 1387 06ab 08       		.uleb128 0x8
+ 1388 06ac D11C0000 		.4byte	.LASF217
+ 1389 06b0 D502     		.sleb128 341
+ 1390 06b2 08       		.uleb128 0x8
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 30
+
+
+ 1391 06b3 BD100000 		.4byte	.LASF218
+ 1392 06b7 D602     		.sleb128 342
+ 1393 06b9 08       		.uleb128 0x8
+ 1394 06ba B2190000 		.4byte	.LASF219
+ 1395 06be D702     		.sleb128 343
+ 1396 06c0 08       		.uleb128 0x8
+ 1397 06c1 11220000 		.4byte	.LASF220
+ 1398 06c5 D802     		.sleb128 344
+ 1399 06c7 08       		.uleb128 0x8
+ 1400 06c8 BF1D0000 		.4byte	.LASF221
+ 1401 06cc D902     		.sleb128 345
+ 1402 06ce 08       		.uleb128 0x8
+ 1403 06cf 4E1C0000 		.4byte	.LASF222
+ 1404 06d3 DA02     		.sleb128 346
+ 1405 06d5 08       		.uleb128 0x8
+ 1406 06d6 65140000 		.4byte	.LASF223
+ 1407 06da DB02     		.sleb128 347
+ 1408 06dc 08       		.uleb128 0x8
+ 1409 06dd 5A010000 		.4byte	.LASF224
+ 1410 06e1 DC02     		.sleb128 348
+ 1411 06e3 08       		.uleb128 0x8
+ 1412 06e4 2F1A0000 		.4byte	.LASF225
+ 1413 06e8 DD02     		.sleb128 349
+ 1414 06ea 08       		.uleb128 0x8
+ 1415 06eb 54260000 		.4byte	.LASF226
+ 1416 06ef DE02     		.sleb128 350
+ 1417 06f1 08       		.uleb128 0x8
+ 1418 06f2 5F230000 		.4byte	.LASF227
+ 1419 06f6 DF02     		.sleb128 351
+ 1420 06f8 08       		.uleb128 0x8
+ 1421 06f9 3C200000 		.4byte	.LASF228
+ 1422 06fd E002     		.sleb128 352
+ 1423 06ff 08       		.uleb128 0x8
+ 1424 0700 DA250000 		.4byte	.LASF229
+ 1425 0704 E102     		.sleb128 353
+ 1426 0706 08       		.uleb128 0x8
+ 1427 0707 8B0B0000 		.4byte	.LASF230
+ 1428 070b E202     		.sleb128 354
+ 1429 070d 08       		.uleb128 0x8
+ 1430 070e 38240000 		.4byte	.LASF231
+ 1431 0712 E302     		.sleb128 355
+ 1432 0714 08       		.uleb128 0x8
+ 1433 0715 7B280000 		.4byte	.LASF232
+ 1434 0719 E402     		.sleb128 356
+ 1435 071b 08       		.uleb128 0x8
+ 1436 071c 78160000 		.4byte	.LASF233
+ 1437 0720 E502     		.sleb128 357
+ 1438 0722 08       		.uleb128 0x8
+ 1439 0723 91270000 		.4byte	.LASF234
+ 1440 0727 E602     		.sleb128 358
+ 1441 0729 08       		.uleb128 0x8
+ 1442 072a 31160000 		.4byte	.LASF235
+ 1443 072e E702     		.sleb128 359
+ 1444 0730 08       		.uleb128 0x8
+ 1445 0731 D5080000 		.4byte	.LASF236
+ 1446 0735 E802     		.sleb128 360
+ 1447 0737 08       		.uleb128 0x8
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 31
+
+
+ 1448 0738 8B100000 		.4byte	.LASF237
+ 1449 073c E902     		.sleb128 361
+ 1450 073e 08       		.uleb128 0x8
+ 1451 073f C00E0000 		.4byte	.LASF238
+ 1452 0743 EA02     		.sleb128 362
+ 1453 0745 08       		.uleb128 0x8
+ 1454 0746 76080000 		.4byte	.LASF239
+ 1455 074a EB02     		.sleb128 363
+ 1456 074c 08       		.uleb128 0x8
+ 1457 074d 5D1F0000 		.4byte	.LASF240
+ 1458 0751 EC02     		.sleb128 364
+ 1459 0753 08       		.uleb128 0x8
+ 1460 0754 2A110000 		.4byte	.LASF241
+ 1461 0758 ED02     		.sleb128 365
+ 1462 075a 08       		.uleb128 0x8
+ 1463 075b BC1A0000 		.4byte	.LASF242
+ 1464 075f EE02     		.sleb128 366
+ 1465 0761 08       		.uleb128 0x8
+ 1466 0762 16030000 		.4byte	.LASF243
+ 1467 0766 EF02     		.sleb128 367
+ 1468 0768 08       		.uleb128 0x8
+ 1469 0769 A20C0000 		.4byte	.LASF244
+ 1470 076d F002     		.sleb128 368
+ 1471 076f 08       		.uleb128 0x8
+ 1472 0770 0D100000 		.4byte	.LASF245
+ 1473 0774 F102     		.sleb128 369
+ 1474 0776 08       		.uleb128 0x8
+ 1475 0777 C4280000 		.4byte	.LASF246
+ 1476 077b F202     		.sleb128 370
+ 1477 077d 08       		.uleb128 0x8
+ 1478 077e 781A0000 		.4byte	.LASF247
+ 1479 0782 F302     		.sleb128 371
+ 1480 0784 08       		.uleb128 0x8
+ 1481 0785 E01A0000 		.4byte	.LASF248
+ 1482 0789 F402     		.sleb128 372
+ 1483 078b 08       		.uleb128 0x8
+ 1484 078c 8E050000 		.4byte	.LASF249
+ 1485 0790 F502     		.sleb128 373
+ 1486 0792 08       		.uleb128 0x8
+ 1487 0793 5E0E0000 		.4byte	.LASF250
+ 1488 0797 F602     		.sleb128 374
+ 1489 0799 08       		.uleb128 0x8
+ 1490 079a D31F0000 		.4byte	.LASF251
+ 1491 079e F702     		.sleb128 375
+ 1492 07a0 08       		.uleb128 0x8
+ 1493 07a1 2F080000 		.4byte	.LASF252
+ 1494 07a5 F802     		.sleb128 376
+ 1495 07a7 08       		.uleb128 0x8
+ 1496 07a8 2C000000 		.4byte	.LASF253
+ 1497 07ac F902     		.sleb128 377
+ 1498 07ae 08       		.uleb128 0x8
+ 1499 07af F8220000 		.4byte	.LASF254
+ 1500 07b3 FA02     		.sleb128 378
+ 1501 07b5 08       		.uleb128 0x8
+ 1502 07b6 E90B0000 		.4byte	.LASF255
+ 1503 07ba FB02     		.sleb128 379
+ 1504 07bc 08       		.uleb128 0x8
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 32
+
+
+ 1505 07bd A0280000 		.4byte	.LASF256
+ 1506 07c1 FC02     		.sleb128 380
+ 1507 07c3 08       		.uleb128 0x8
+ 1508 07c4 0B120000 		.4byte	.LASF257
+ 1509 07c8 FD02     		.sleb128 381
+ 1510 07ca 08       		.uleb128 0x8
+ 1511 07cb E7130000 		.4byte	.LASF258
+ 1512 07cf FE02     		.sleb128 382
+ 1513 07d1 08       		.uleb128 0x8
+ 1514 07d2 61280000 		.4byte	.LASF259
+ 1515 07d6 FF02     		.sleb128 383
+ 1516 07d8 08       		.uleb128 0x8
+ 1517 07d9 F1200000 		.4byte	.LASF260
+ 1518 07dd 8003     		.sleb128 384
+ 1519 07df 08       		.uleb128 0x8
+ 1520 07e0 5B180000 		.4byte	.LASF261
+ 1521 07e4 8103     		.sleb128 385
+ 1522 07e6 08       		.uleb128 0x8
+ 1523 07e7 F2190000 		.4byte	.LASF262
+ 1524 07eb 8203     		.sleb128 386
+ 1525 07ed 08       		.uleb128 0x8
+ 1526 07ee F8240000 		.4byte	.LASF263
+ 1527 07f2 8303     		.sleb128 387
+ 1528 07f4 08       		.uleb128 0x8
+ 1529 07f5 60110000 		.4byte	.LASF264
+ 1530 07f9 8403     		.sleb128 388
+ 1531 07fb 08       		.uleb128 0x8
+ 1532 07fc 1B0E0000 		.4byte	.LASF265
+ 1533 0800 8503     		.sleb128 389
+ 1534 0802 08       		.uleb128 0x8
+ 1535 0803 82150000 		.4byte	.LASF266
+ 1536 0807 8603     		.sleb128 390
+ 1537 0809 08       		.uleb128 0x8
+ 1538 080a CB010000 		.4byte	.LASF267
+ 1539 080e 8703     		.sleb128 391
+ 1540 0810 08       		.uleb128 0x8
+ 1541 0811 161E0000 		.4byte	.LASF268
+ 1542 0815 8803     		.sleb128 392
+ 1543 0817 08       		.uleb128 0x8
+ 1544 0818 6A020000 		.4byte	.LASF269
+ 1545 081c 8903     		.sleb128 393
+ 1546 081e 08       		.uleb128 0x8
+ 1547 081f C81B0000 		.4byte	.LASF270
+ 1548 0823 8A03     		.sleb128 394
+ 1549 0825 08       		.uleb128 0x8
+ 1550 0826 95060000 		.4byte	.LASF271
+ 1551 082a 8B03     		.sleb128 395
+ 1552 082c 08       		.uleb128 0x8
+ 1553 082d A1130000 		.4byte	.LASF272
+ 1554 0831 8C03     		.sleb128 396
+ 1555 0833 08       		.uleb128 0x8
+ 1556 0834 F71F0000 		.4byte	.LASF273
+ 1557 0838 8D03     		.sleb128 397
+ 1558 083a 08       		.uleb128 0x8
+ 1559 083b 6D040000 		.4byte	.LASF274
+ 1560 083f 8E03     		.sleb128 398
+ 1561 0841 08       		.uleb128 0x8
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 33
+
+
+ 1562 0842 871D0000 		.4byte	.LASF275
+ 1563 0846 8F03     		.sleb128 399
+ 1564 0848 08       		.uleb128 0x8
+ 1565 0849 101C0000 		.4byte	.LASF276
+ 1566 084d 9003     		.sleb128 400
+ 1567 084f 08       		.uleb128 0x8
+ 1568 0850 F20E0000 		.4byte	.LASF277
+ 1569 0854 9103     		.sleb128 401
+ 1570 0856 08       		.uleb128 0x8
+ 1571 0857 FD250000 		.4byte	.LASF278
+ 1572 085b 9203     		.sleb128 402
+ 1573 085d 08       		.uleb128 0x8
+ 1574 085e 5E150000 		.4byte	.LASF279
+ 1575 0862 9303     		.sleb128 403
+ 1576 0864 08       		.uleb128 0x8
+ 1577 0865 1F1B0000 		.4byte	.LASF280
+ 1578 0869 9403     		.sleb128 404
+ 1579 086b 08       		.uleb128 0x8
+ 1580 086c 7E110000 		.4byte	.LASF281
+ 1581 0870 9503     		.sleb128 405
+ 1582 0872 08       		.uleb128 0x8
+ 1583 0873 131F0000 		.4byte	.LASF282
+ 1584 0877 9603     		.sleb128 406
+ 1585 0879 08       		.uleb128 0x8
+ 1586 087a 49120000 		.4byte	.LASF283
+ 1587 087e 9703     		.sleb128 407
+ 1588 0880 08       		.uleb128 0x8
+ 1589 0881 A3110000 		.4byte	.LASF284
+ 1590 0885 9803     		.sleb128 408
+ 1591 0887 08       		.uleb128 0x8
+ 1592 0888 87040000 		.4byte	.LASF285
+ 1593 088c 9903     		.sleb128 409
+ 1594 088e 08       		.uleb128 0x8
+ 1595 088f 3F070000 		.4byte	.LASF286
+ 1596 0893 9A03     		.sleb128 410
+ 1597 0895 08       		.uleb128 0x8
+ 1598 0896 4D100000 		.4byte	.LASF287
+ 1599 089a 9B03     		.sleb128 411
+ 1600 089c 08       		.uleb128 0x8
+ 1601 089d 13210000 		.4byte	.LASF288
+ 1602 08a1 9C03     		.sleb128 412
+ 1603 08a3 08       		.uleb128 0x8
+ 1604 08a4 17280000 		.4byte	.LASF289
+ 1605 08a8 9D03     		.sleb128 413
+ 1606 08aa 08       		.uleb128 0x8
+ 1607 08ab 04110000 		.4byte	.LASF290
+ 1608 08af 9E03     		.sleb128 414
+ 1609 08b1 08       		.uleb128 0x8
+ 1610 08b2 93090000 		.4byte	.LASF291
+ 1611 08b6 9F03     		.sleb128 415
+ 1612 08b8 08       		.uleb128 0x8
+ 1613 08b9 E10D0000 		.4byte	.LASF292
+ 1614 08bd A003     		.sleb128 416
+ 1615 08bf 08       		.uleb128 0x8
+ 1616 08c0 941A0000 		.4byte	.LASF293
+ 1617 08c4 A103     		.sleb128 417
+ 1618 08c6 08       		.uleb128 0x8
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 34
+
+
+ 1619 08c7 D7020000 		.4byte	.LASF294
+ 1620 08cb A203     		.sleb128 418
+ 1621 08cd 08       		.uleb128 0x8
+ 1622 08ce 5E200000 		.4byte	.LASF295
+ 1623 08d2 A303     		.sleb128 419
+ 1624 08d4 08       		.uleb128 0x8
+ 1625 08d5 410A0000 		.4byte	.LASF296
+ 1626 08d9 A403     		.sleb128 420
+ 1627 08db 08       		.uleb128 0x8
+ 1628 08dc 0C080000 		.4byte	.LASF297
+ 1629 08e0 A503     		.sleb128 421
+ 1630 08e2 08       		.uleb128 0x8
+ 1631 08e3 4F0D0000 		.4byte	.LASF298
+ 1632 08e7 A603     		.sleb128 422
+ 1633 08e9 08       		.uleb128 0x8
+ 1634 08ea A1240000 		.4byte	.LASF299
+ 1635 08ee A703     		.sleb128 423
+ 1636 08f0 08       		.uleb128 0x8
+ 1637 08f1 45020000 		.4byte	.LASF300
+ 1638 08f5 A803     		.sleb128 424
+ 1639 08f7 08       		.uleb128 0x8
+ 1640 08f8 C7000000 		.4byte	.LASF301
+ 1641 08fc A903     		.sleb128 425
+ 1642 08fe 08       		.uleb128 0x8
+ 1643 08ff 0C0C0000 		.4byte	.LASF302
+ 1644 0903 AA03     		.sleb128 426
+ 1645 0905 08       		.uleb128 0x8
+ 1646 0906 9A0A0000 		.4byte	.LASF303
+ 1647 090a AB03     		.sleb128 427
+ 1648 090c 08       		.uleb128 0x8
+ 1649 090d 4C170000 		.4byte	.LASF304
+ 1650 0911 AC03     		.sleb128 428
+ 1651 0913 08       		.uleb128 0x8
+ 1652 0914 7B230000 		.4byte	.LASF305
+ 1653 0918 AD03     		.sleb128 429
+ 1654 091a 08       		.uleb128 0x8
+ 1655 091b 14160000 		.4byte	.LASF306
+ 1656 091f AE03     		.sleb128 430
+ 1657 0921 08       		.uleb128 0x8
+ 1658 0922 AF1F0000 		.4byte	.LASF307
+ 1659 0926 AF03     		.sleb128 431
+ 1660 0928 08       		.uleb128 0x8
+ 1661 0929 070B0000 		.4byte	.LASF308
+ 1662 092d B003     		.sleb128 432
+ 1663 092f 08       		.uleb128 0x8
+ 1664 0930 30260000 		.4byte	.LASF309
+ 1665 0934 B103     		.sleb128 433
+ 1666 0936 08       		.uleb128 0x8
+ 1667 0937 8A1F0000 		.4byte	.LASF310
+ 1668 093b B203     		.sleb128 434
+ 1669 093d 08       		.uleb128 0x8
+ 1670 093e 310B0000 		.4byte	.LASF311
+ 1671 0942 B303     		.sleb128 435
+ 1672 0944 08       		.uleb128 0x8
+ 1673 0945 11140000 		.4byte	.LASF312
+ 1674 0949 B403     		.sleb128 436
+ 1675 094b 08       		.uleb128 0x8
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 35
+
+
+ 1676 094c B11E0000 		.4byte	.LASF313
+ 1677 0950 B503     		.sleb128 437
+ 1678 0952 08       		.uleb128 0x8
+ 1679 0953 730D0000 		.4byte	.LASF314
+ 1680 0957 B603     		.sleb128 438
+ 1681 0959 08       		.uleb128 0x8
+ 1682 095a C1220000 		.4byte	.LASF315
+ 1683 095e B703     		.sleb128 439
+ 1684 0960 08       		.uleb128 0x8
+ 1685 0961 4E0C0000 		.4byte	.LASF316
+ 1686 0965 B803     		.sleb128 440
+ 1687 0967 08       		.uleb128 0x8
+ 1688 0968 79070000 		.4byte	.LASF317
+ 1689 096c B903     		.sleb128 441
+ 1690 096e 08       		.uleb128 0x8
+ 1691 096f A41B0000 		.4byte	.LASF318
+ 1692 0973 BA03     		.sleb128 442
+ 1693 0975 08       		.uleb128 0x8
+ 1694 0976 CE0F0000 		.4byte	.LASF319
+ 1695 097a BB03     		.sleb128 443
+ 1696 097c 08       		.uleb128 0x8
+ 1697 097d F30F0000 		.4byte	.LASF320
+ 1698 0981 BC03     		.sleb128 444
+ 1699 0983 08       		.uleb128 0x8
+ 1700 0984 6F000000 		.4byte	.LASF321
+ 1701 0988 BD03     		.sleb128 445
+ 1702 098a 08       		.uleb128 0x8
+ 1703 098b A4160000 		.4byte	.LASF322
+ 1704 098f BE03     		.sleb128 446
+ 1705 0991 08       		.uleb128 0x8
+ 1706 0992 0A000000 		.4byte	.LASF323
+ 1707 0996 BF03     		.sleb128 447
+ 1708 0998 08       		.uleb128 0x8
+ 1709 0999 04190000 		.4byte	.LASF324
+ 1710 099d C003     		.sleb128 448
+ 1711 099f 08       		.uleb128 0x8
+ 1712 09a0 1A230000 		.4byte	.LASF325
+ 1713 09a4 C103     		.sleb128 449
+ 1714 09a6 08       		.uleb128 0x8
+ 1715 09a7 F2020000 		.4byte	.LASF326
+ 1716 09ab C203     		.sleb128 450
+ 1717 09ad 08       		.uleb128 0x8
+ 1718 09ae 151A0000 		.4byte	.LASF327
+ 1719 09b2 80C003   		.sleb128 57344
+ 1720 09b5 00       		.byte	0
+ 1721 09b6 11       		.uleb128 0x11
+ 1722 09b7 53210000 		.4byte	.LASF332
+ 1723 09bb 01       		.byte	0x1
+ 1724 09bc 32       		.byte	0x32
+ 1725 09bd 00000000 		.4byte	.LFB35
+ 1726 09c1 28010000 		.4byte	.LFE35-.LFB35
+ 1727 09c5 01       		.uleb128 0x1
+ 1728 09c6 9C       		.byte	0x9c
+ 1729 09c7 0E0A0000 		.4byte	0xa0e
+ 1730 09cb 12       		.uleb128 0x12
+ 1731 09cc 9E160000 		.4byte	.LASF328
+ 1732 09d0 01       		.byte	0x1
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 36
+
+
+ 1733 09d1 32       		.byte	0x32
+ 1734 09d2 81000000 		.4byte	0x81
+ 1735 09d6 02       		.uleb128 0x2
+ 1736 09d7 91       		.byte	0x91
+ 1737 09d8 64       		.sleb128 -28
+ 1738 09d9 12       		.uleb128 0x12
+ 1739 09da 7F010000 		.4byte	.LASF329
+ 1740 09de 01       		.byte	0x1
+ 1741 09df 32       		.byte	0x32
+ 1742 09e0 C3000000 		.4byte	0xc3
+ 1743 09e4 02       		.uleb128 0x2
+ 1744 09e5 91       		.byte	0x91
+ 1745 09e6 60       		.sleb128 -32
+ 1746 09e7 13       		.uleb128 0x13
+ 1747 09e8 971B0000 		.4byte	.LASF330
+ 1748 09ec 01       		.byte	0x1
+ 1749 09ed 34       		.byte	0x34
+ 1750 09ee 6B000000 		.4byte	0x6b
+ 1751 09f2 02       		.uleb128 0x2
+ 1752 09f3 91       		.byte	0x91
+ 1753 09f4 6F       		.sleb128 -17
+ 1754 09f5 14       		.uleb128 0x14
+ 1755 09f6 AA000000 		.4byte	.LBB2
+ 1756 09fa 38000000 		.4byte	.LBE2-.LBB2
+ 1757 09fe 13       		.uleb128 0x13
+ 1758 09ff 24060000 		.4byte	.LASF331
+ 1759 0a03 01       		.byte	0x1
+ 1760 0a04 54       		.byte	0x54
+ 1761 0a05 76000000 		.4byte	0x76
+ 1762 0a09 02       		.uleb128 0x2
+ 1763 0a0a 91       		.byte	0x91
+ 1764 0a0b 6C       		.sleb128 -20
+ 1765 0a0c 00       		.byte	0
+ 1766 0a0d 00       		.byte	0
+ 1767 0a0e 11       		.uleb128 0x11
+ 1768 0a0f 031E0000 		.4byte	.LASF333
+ 1769 0a13 01       		.byte	0x1
+ 1770 0a14 7C       		.byte	0x7c
+ 1771 0a15 00000000 		.4byte	.LFB36
+ 1772 0a19 10020000 		.4byte	.LFE36-.LFB36
+ 1773 0a1d 01       		.uleb128 0x1
+ 1774 0a1e 9C       		.byte	0x9c
+ 1775 0a1f 8C0A0000 		.4byte	0xa8c
+ 1776 0a23 13       		.uleb128 0x13
+ 1777 0a24 9B030000 		.4byte	.LASF334
+ 1778 0a28 01       		.byte	0x1
+ 1779 0a29 7E       		.byte	0x7e
+ 1780 0a2a 97000000 		.4byte	0x97
+ 1781 0a2e 02       		.uleb128 0x2
+ 1782 0a2f 91       		.byte	0x91
+ 1783 0a30 6C       		.sleb128 -20
+ 1784 0a31 13       		.uleb128 0x13
+ 1785 0a32 11200000 		.4byte	.LASF335
+ 1786 0a36 01       		.byte	0x1
+ 1787 0a37 7F       		.byte	0x7f
+ 1788 0a38 A9000000 		.4byte	0xa9
+ 1789 0a3c 02       		.uleb128 0x2
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 37
+
+
+ 1790 0a3d 91       		.byte	0x91
+ 1791 0a3e 58       		.sleb128 -40
+ 1792 0a3f 13       		.uleb128 0x13
+ 1793 0a40 AE220000 		.4byte	.LASF336
+ 1794 0a44 01       		.byte	0x1
+ 1795 0a45 80       		.byte	0x80
+ 1796 0a46 A9000000 		.4byte	0xa9
+ 1797 0a4a 05       		.uleb128 0x5
+ 1798 0a4b 03       		.byte	0x3
+ 1799 0a4c 10000000 		.4byte	temperatureCelsius.7493
+ 1800 0a50 13       		.uleb128 0x13
+ 1801 0a51 F7050000 		.4byte	.LASF337
+ 1802 0a55 01       		.byte	0x1
+ 1803 0a56 81       		.byte	0x81
+ 1804 0a57 6B000000 		.4byte	0x6b
+ 1805 0a5b 05       		.uleb128 0x5
+ 1806 0a5c 03       		.byte	0x3
+ 1807 0a5d 06000000 		.4byte	measure.7494
+ 1808 0a61 13       		.uleb128 0x13
+ 1809 0a62 00000000 		.4byte	.LASF338
+ 1810 0a66 01       		.byte	0x1
+ 1811 0a67 82       		.byte	0x82
+ 1812 0a68 97000000 		.4byte	0x97
+ 1813 0a6c 02       		.uleb128 0x2
+ 1814 0a6d 91       		.byte	0x91
+ 1815 0a6e 64       		.sleb128 -28
+ 1816 0a6f 13       		.uleb128 0x13
+ 1817 0a70 A10F0000 		.4byte	.LASF339
+ 1818 0a74 01       		.byte	0x1
+ 1819 0a75 83       		.byte	0x83
+ 1820 0a76 8C000000 		.4byte	0x8c
+ 1821 0a7a 02       		.uleb128 0x2
+ 1822 0a7b 91       		.byte	0x91
+ 1823 0a7c 6A       		.sleb128 -22
+ 1824 0a7d 13       		.uleb128 0x13
+ 1825 0a7e 801F0000 		.4byte	.LASF340
+ 1826 0a82 01       		.byte	0x1
+ 1827 0a83 84       		.byte	0x84
+ 1828 0a84 01030000 		.4byte	0x301
+ 1829 0a88 02       		.uleb128 0x2
+ 1830 0a89 91       		.byte	0x91
+ 1831 0a8a 56       		.sleb128 -42
+ 1832 0a8b 00       		.byte	0
+ 1833 0a8c 15       		.uleb128 0x15
+ 1834 0a8d 38210000 		.4byte	.LASF341
+ 1835 0a91 07       		.byte	0x7
+ 1836 0a92 2307     		.2byte	0x723
+ 1837 0a94 37030000 		.4byte	0x337
+ 1838 0a98 16       		.uleb128 0x16
+ 1839 0a99 6E1A0000 		.4byte	.LASF342
+ 1840 0a9d 08       		.byte	0x8
+ 1841 0a9e 30       		.byte	0x30
+ 1842 0a9f B7000000 		.4byte	0xb7
+ 1843 0aa3 17       		.uleb128 0x17
+ 1844 0aa4 AC1C0000 		.4byte	.LASF343
+ 1845 0aa8 01       		.byte	0x1
+ 1846 0aa9 16       		.byte	0x16
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 38
+
+
+ 1847 0aaa 76000000 		.4byte	0x76
+ 1848 0aae 05       		.uleb128 0x5
+ 1849 0aaf 03       		.byte	0x3
+ 1850 0ab0 00000000 		.4byte	temperatureMeasure
+ 1851 0ab4 17       		.uleb128 0x17
+ 1852 0ab5 DE0C0000 		.4byte	.LASF344
+ 1853 0ab9 01       		.byte	0x1
+ 1854 0aba 17       		.byte	0x17
+ 1855 0abb 81000000 		.4byte	0x81
+ 1856 0abf 05       		.uleb128 0x5
+ 1857 0ac0 03       		.byte	0x3
+ 1858 0ac1 00000000 		.4byte	temperatureTimer
+ 1859 0ac5 17       		.uleb128 0x17
+ 1860 0ac6 E9180000 		.4byte	.LASF345
+ 1861 0aca 01       		.byte	0x1
+ 1862 0acb 19       		.byte	0x19
+ 1863 0acc 76000000 		.4byte	0x76
+ 1864 0ad0 05       		.uleb128 0x5
+ 1865 0ad1 03       		.byte	0x3
+ 1866 0ad2 00000000 		.4byte	initialMeasurementInterval
+ 1867 0ad6 18       		.uleb128 0x18
+ 1868 0ad7 6B000000 		.4byte	0x6b
+ 1869 0adb E60A0000 		.4byte	0xae6
+ 1870 0adf 19       		.uleb128 0x19
+ 1871 0ae0 BC000000 		.4byte	0xbc
+ 1872 0ae4 04       		.byte	0x4
+ 1873 0ae5 00       		.byte	0
+ 1874 0ae6 17       		.uleb128 0x17
+ 1875 0ae7 450D0000 		.4byte	.LASF346
+ 1876 0aeb 01       		.byte	0x1
+ 1877 0aec 1F       		.byte	0x1f
+ 1878 0aed D60A0000 		.4byte	0xad6
+ 1879 0af1 05       		.uleb128 0x5
+ 1880 0af2 03       		.byte	0x3
+ 1881 0af3 00000000 		.4byte	temp_data
+ 1882 0af7 00       		.byte	0
+ 1883              		.section	.debug_abbrev,"",%progbits
+ 1884              	.Ldebug_abbrev0:
+ 1885 0000 01       		.uleb128 0x1
+ 1886 0001 11       		.uleb128 0x11
+ 1887 0002 01       		.byte	0x1
+ 1888 0003 25       		.uleb128 0x25
+ 1889 0004 0E       		.uleb128 0xe
+ 1890 0005 13       		.uleb128 0x13
+ 1891 0006 0B       		.uleb128 0xb
+ 1892 0007 03       		.uleb128 0x3
+ 1893 0008 0E       		.uleb128 0xe
+ 1894 0009 1B       		.uleb128 0x1b
+ 1895 000a 0E       		.uleb128 0xe
+ 1896 000b 55       		.uleb128 0x55
+ 1897 000c 17       		.uleb128 0x17
+ 1898 000d 11       		.uleb128 0x11
+ 1899 000e 01       		.uleb128 0x1
+ 1900 000f 10       		.uleb128 0x10
+ 1901 0010 17       		.uleb128 0x17
+ 1902 0011 00       		.byte	0
+ 1903 0012 00       		.byte	0
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 39
+
+
+ 1904 0013 02       		.uleb128 0x2
+ 1905 0014 24       		.uleb128 0x24
+ 1906 0015 00       		.byte	0
+ 1907 0016 0B       		.uleb128 0xb
+ 1908 0017 0B       		.uleb128 0xb
+ 1909 0018 3E       		.uleb128 0x3e
+ 1910 0019 0B       		.uleb128 0xb
+ 1911 001a 03       		.uleb128 0x3
+ 1912 001b 0E       		.uleb128 0xe
+ 1913 001c 00       		.byte	0
+ 1914 001d 00       		.byte	0
+ 1915 001e 03       		.uleb128 0x3
+ 1916 001f 24       		.uleb128 0x24
+ 1917 0020 00       		.byte	0
+ 1918 0021 0B       		.uleb128 0xb
+ 1919 0022 0B       		.uleb128 0xb
+ 1920 0023 3E       		.uleb128 0x3e
+ 1921 0024 0B       		.uleb128 0xb
+ 1922 0025 03       		.uleb128 0x3
+ 1923 0026 08       		.uleb128 0x8
+ 1924 0027 00       		.byte	0
+ 1925 0028 00       		.byte	0
+ 1926 0029 04       		.uleb128 0x4
+ 1927 002a 16       		.uleb128 0x16
+ 1928 002b 00       		.byte	0
+ 1929 002c 03       		.uleb128 0x3
+ 1930 002d 0E       		.uleb128 0xe
+ 1931 002e 3A       		.uleb128 0x3a
+ 1932 002f 0B       		.uleb128 0xb
+ 1933 0030 3B       		.uleb128 0x3b
+ 1934 0031 0B       		.uleb128 0xb
+ 1935 0032 49       		.uleb128 0x49
+ 1936 0033 13       		.uleb128 0x13
+ 1937 0034 00       		.byte	0
+ 1938 0035 00       		.byte	0
+ 1939 0036 05       		.uleb128 0x5
+ 1940 0037 35       		.uleb128 0x35
+ 1941 0038 00       		.byte	0
+ 1942 0039 49       		.uleb128 0x49
+ 1943 003a 13       		.uleb128 0x13
+ 1944 003b 00       		.byte	0
+ 1945 003c 00       		.byte	0
+ 1946 003d 06       		.uleb128 0x6
+ 1947 003e 0F       		.uleb128 0xf
+ 1948 003f 00       		.byte	0
+ 1949 0040 0B       		.uleb128 0xb
+ 1950 0041 0B       		.uleb128 0xb
+ 1951 0042 00       		.byte	0
+ 1952 0043 00       		.byte	0
+ 1953 0044 07       		.uleb128 0x7
+ 1954 0045 04       		.uleb128 0x4
+ 1955 0046 01       		.byte	0x1
+ 1956 0047 0B       		.uleb128 0xb
+ 1957 0048 0B       		.uleb128 0xb
+ 1958 0049 3A       		.uleb128 0x3a
+ 1959 004a 0B       		.uleb128 0xb
+ 1960 004b 3B       		.uleb128 0x3b
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 40
+
+
+ 1961 004c 0B       		.uleb128 0xb
+ 1962 004d 01       		.uleb128 0x1
+ 1963 004e 13       		.uleb128 0x13
+ 1964 004f 00       		.byte	0
+ 1965 0050 00       		.byte	0
+ 1966 0051 08       		.uleb128 0x8
+ 1967 0052 28       		.uleb128 0x28
+ 1968 0053 00       		.byte	0
+ 1969 0054 03       		.uleb128 0x3
+ 1970 0055 0E       		.uleb128 0xe
+ 1971 0056 1C       		.uleb128 0x1c
+ 1972 0057 0D       		.uleb128 0xd
+ 1973 0058 00       		.byte	0
+ 1974 0059 00       		.byte	0
+ 1975 005a 09       		.uleb128 0x9
+ 1976 005b 04       		.uleb128 0x4
+ 1977 005c 01       		.byte	0x1
+ 1978 005d 0B       		.uleb128 0xb
+ 1979 005e 0B       		.uleb128 0xb
+ 1980 005f 3A       		.uleb128 0x3a
+ 1981 0060 0B       		.uleb128 0xb
+ 1982 0061 3B       		.uleb128 0x3b
+ 1983 0062 05       		.uleb128 0x5
+ 1984 0063 01       		.uleb128 0x1
+ 1985 0064 13       		.uleb128 0x13
+ 1986 0065 00       		.byte	0
+ 1987 0066 00       		.byte	0
+ 1988 0067 0A       		.uleb128 0xa
+ 1989 0068 16       		.uleb128 0x16
+ 1990 0069 00       		.byte	0
+ 1991 006a 03       		.uleb128 0x3
+ 1992 006b 0E       		.uleb128 0xe
+ 1993 006c 3A       		.uleb128 0x3a
+ 1994 006d 0B       		.uleb128 0xb
+ 1995 006e 3B       		.uleb128 0x3b
+ 1996 006f 05       		.uleb128 0x5
+ 1997 0070 49       		.uleb128 0x49
+ 1998 0071 13       		.uleb128 0x13
+ 1999 0072 00       		.byte	0
+ 2000 0073 00       		.byte	0
+ 2001 0074 0B       		.uleb128 0xb
+ 2002 0075 0F       		.uleb128 0xf
+ 2003 0076 00       		.byte	0
+ 2004 0077 0B       		.uleb128 0xb
+ 2005 0078 0B       		.uleb128 0xb
+ 2006 0079 49       		.uleb128 0x49
+ 2007 007a 13       		.uleb128 0x13
+ 2008 007b 00       		.byte	0
+ 2009 007c 00       		.byte	0
+ 2010 007d 0C       		.uleb128 0xc
+ 2011 007e 13       		.uleb128 0x13
+ 2012 007f 01       		.byte	0x1
+ 2013 0080 0B       		.uleb128 0xb
+ 2014 0081 0B       		.uleb128 0xb
+ 2015 0082 3A       		.uleb128 0x3a
+ 2016 0083 0B       		.uleb128 0xb
+ 2017 0084 3B       		.uleb128 0x3b
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 41
+
+
+ 2018 0085 05       		.uleb128 0x5
+ 2019 0086 01       		.uleb128 0x1
+ 2020 0087 13       		.uleb128 0x13
+ 2021 0088 00       		.byte	0
+ 2022 0089 00       		.byte	0
+ 2023 008a 0D       		.uleb128 0xd
+ 2024 008b 0D       		.uleb128 0xd
+ 2025 008c 00       		.byte	0
+ 2026 008d 03       		.uleb128 0x3
+ 2027 008e 0E       		.uleb128 0xe
+ 2028 008f 3A       		.uleb128 0x3a
+ 2029 0090 0B       		.uleb128 0xb
+ 2030 0091 3B       		.uleb128 0x3b
+ 2031 0092 05       		.uleb128 0x5
+ 2032 0093 49       		.uleb128 0x49
+ 2033 0094 13       		.uleb128 0x13
+ 2034 0095 38       		.uleb128 0x38
+ 2035 0096 0B       		.uleb128 0xb
+ 2036 0097 00       		.byte	0
+ 2037 0098 00       		.byte	0
+ 2038 0099 0E       		.uleb128 0xe
+ 2039 009a 0D       		.uleb128 0xd
+ 2040 009b 00       		.byte	0
+ 2041 009c 03       		.uleb128 0x3
+ 2042 009d 08       		.uleb128 0x8
+ 2043 009e 3A       		.uleb128 0x3a
+ 2044 009f 0B       		.uleb128 0xb
+ 2045 00a0 3B       		.uleb128 0x3b
+ 2046 00a1 05       		.uleb128 0x5
+ 2047 00a2 49       		.uleb128 0x49
+ 2048 00a3 13       		.uleb128 0x13
+ 2049 00a4 38       		.uleb128 0x38
+ 2050 00a5 0B       		.uleb128 0xb
+ 2051 00a6 00       		.byte	0
+ 2052 00a7 00       		.byte	0
+ 2053 00a8 0F       		.uleb128 0xf
+ 2054 00a9 13       		.uleb128 0x13
+ 2055 00aa 01       		.byte	0x1
+ 2056 00ab 0B       		.uleb128 0xb
+ 2057 00ac 0B       		.uleb128 0xb
+ 2058 00ad 3A       		.uleb128 0x3a
+ 2059 00ae 0B       		.uleb128 0xb
+ 2060 00af 3B       		.uleb128 0x3b
+ 2061 00b0 0B       		.uleb128 0xb
+ 2062 00b1 01       		.uleb128 0x1
+ 2063 00b2 13       		.uleb128 0x13
+ 2064 00b3 00       		.byte	0
+ 2065 00b4 00       		.byte	0
+ 2066 00b5 10       		.uleb128 0x10
+ 2067 00b6 0D       		.uleb128 0xd
+ 2068 00b7 00       		.byte	0
+ 2069 00b8 03       		.uleb128 0x3
+ 2070 00b9 0E       		.uleb128 0xe
+ 2071 00ba 3A       		.uleb128 0x3a
+ 2072 00bb 0B       		.uleb128 0xb
+ 2073 00bc 3B       		.uleb128 0x3b
+ 2074 00bd 0B       		.uleb128 0xb
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 42
+
+
+ 2075 00be 49       		.uleb128 0x49
+ 2076 00bf 13       		.uleb128 0x13
+ 2077 00c0 38       		.uleb128 0x38
+ 2078 00c1 0B       		.uleb128 0xb
+ 2079 00c2 00       		.byte	0
+ 2080 00c3 00       		.byte	0
+ 2081 00c4 11       		.uleb128 0x11
+ 2082 00c5 2E       		.uleb128 0x2e
+ 2083 00c6 01       		.byte	0x1
+ 2084 00c7 3F       		.uleb128 0x3f
+ 2085 00c8 19       		.uleb128 0x19
+ 2086 00c9 03       		.uleb128 0x3
+ 2087 00ca 0E       		.uleb128 0xe
+ 2088 00cb 3A       		.uleb128 0x3a
+ 2089 00cc 0B       		.uleb128 0xb
+ 2090 00cd 3B       		.uleb128 0x3b
+ 2091 00ce 0B       		.uleb128 0xb
+ 2092 00cf 27       		.uleb128 0x27
+ 2093 00d0 19       		.uleb128 0x19
+ 2094 00d1 11       		.uleb128 0x11
+ 2095 00d2 01       		.uleb128 0x1
+ 2096 00d3 12       		.uleb128 0x12
+ 2097 00d4 06       		.uleb128 0x6
+ 2098 00d5 40       		.uleb128 0x40
+ 2099 00d6 18       		.uleb128 0x18
+ 2100 00d7 9642     		.uleb128 0x2116
+ 2101 00d9 19       		.uleb128 0x19
+ 2102 00da 01       		.uleb128 0x1
+ 2103 00db 13       		.uleb128 0x13
+ 2104 00dc 00       		.byte	0
+ 2105 00dd 00       		.byte	0
+ 2106 00de 12       		.uleb128 0x12
+ 2107 00df 05       		.uleb128 0x5
+ 2108 00e0 00       		.byte	0
+ 2109 00e1 03       		.uleb128 0x3
+ 2110 00e2 0E       		.uleb128 0xe
+ 2111 00e3 3A       		.uleb128 0x3a
+ 2112 00e4 0B       		.uleb128 0xb
+ 2113 00e5 3B       		.uleb128 0x3b
+ 2114 00e6 0B       		.uleb128 0xb
+ 2115 00e7 49       		.uleb128 0x49
+ 2116 00e8 13       		.uleb128 0x13
+ 2117 00e9 02       		.uleb128 0x2
+ 2118 00ea 18       		.uleb128 0x18
+ 2119 00eb 00       		.byte	0
+ 2120 00ec 00       		.byte	0
+ 2121 00ed 13       		.uleb128 0x13
+ 2122 00ee 34       		.uleb128 0x34
+ 2123 00ef 00       		.byte	0
+ 2124 00f0 03       		.uleb128 0x3
+ 2125 00f1 0E       		.uleb128 0xe
+ 2126 00f2 3A       		.uleb128 0x3a
+ 2127 00f3 0B       		.uleb128 0xb
+ 2128 00f4 3B       		.uleb128 0x3b
+ 2129 00f5 0B       		.uleb128 0xb
+ 2130 00f6 49       		.uleb128 0x49
+ 2131 00f7 13       		.uleb128 0x13
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 43
+
+
+ 2132 00f8 02       		.uleb128 0x2
+ 2133 00f9 18       		.uleb128 0x18
+ 2134 00fa 00       		.byte	0
+ 2135 00fb 00       		.byte	0
+ 2136 00fc 14       		.uleb128 0x14
+ 2137 00fd 0B       		.uleb128 0xb
+ 2138 00fe 01       		.byte	0x1
+ 2139 00ff 11       		.uleb128 0x11
+ 2140 0100 01       		.uleb128 0x1
+ 2141 0101 12       		.uleb128 0x12
+ 2142 0102 06       		.uleb128 0x6
+ 2143 0103 00       		.byte	0
+ 2144 0104 00       		.byte	0
+ 2145 0105 15       		.uleb128 0x15
+ 2146 0106 34       		.uleb128 0x34
+ 2147 0107 00       		.byte	0
+ 2148 0108 03       		.uleb128 0x3
+ 2149 0109 0E       		.uleb128 0xe
+ 2150 010a 3A       		.uleb128 0x3a
+ 2151 010b 0B       		.uleb128 0xb
+ 2152 010c 3B       		.uleb128 0x3b
+ 2153 010d 05       		.uleb128 0x5
+ 2154 010e 49       		.uleb128 0x49
+ 2155 010f 13       		.uleb128 0x13
+ 2156 0110 3F       		.uleb128 0x3f
+ 2157 0111 19       		.uleb128 0x19
+ 2158 0112 3C       		.uleb128 0x3c
+ 2159 0113 19       		.uleb128 0x19
+ 2160 0114 00       		.byte	0
+ 2161 0115 00       		.byte	0
+ 2162 0116 16       		.uleb128 0x16
+ 2163 0117 34       		.uleb128 0x34
+ 2164 0118 00       		.byte	0
+ 2165 0119 03       		.uleb128 0x3
+ 2166 011a 0E       		.uleb128 0xe
+ 2167 011b 3A       		.uleb128 0x3a
+ 2168 011c 0B       		.uleb128 0xb
+ 2169 011d 3B       		.uleb128 0x3b
+ 2170 011e 0B       		.uleb128 0xb
+ 2171 011f 49       		.uleb128 0x49
+ 2172 0120 13       		.uleb128 0x13
+ 2173 0121 3F       		.uleb128 0x3f
+ 2174 0122 19       		.uleb128 0x19
+ 2175 0123 3C       		.uleb128 0x3c
+ 2176 0124 19       		.uleb128 0x19
+ 2177 0125 00       		.byte	0
+ 2178 0126 00       		.byte	0
+ 2179 0127 17       		.uleb128 0x17
+ 2180 0128 34       		.uleb128 0x34
+ 2181 0129 00       		.byte	0
+ 2182 012a 03       		.uleb128 0x3
+ 2183 012b 0E       		.uleb128 0xe
+ 2184 012c 3A       		.uleb128 0x3a
+ 2185 012d 0B       		.uleb128 0xb
+ 2186 012e 3B       		.uleb128 0x3b
+ 2187 012f 0B       		.uleb128 0xb
+ 2188 0130 49       		.uleb128 0x49
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 44
+
+
+ 2189 0131 13       		.uleb128 0x13
+ 2190 0132 3F       		.uleb128 0x3f
+ 2191 0133 19       		.uleb128 0x19
+ 2192 0134 02       		.uleb128 0x2
+ 2193 0135 18       		.uleb128 0x18
+ 2194 0136 00       		.byte	0
+ 2195 0137 00       		.byte	0
+ 2196 0138 18       		.uleb128 0x18
+ 2197 0139 01       		.uleb128 0x1
+ 2198 013a 01       		.byte	0x1
+ 2199 013b 49       		.uleb128 0x49
+ 2200 013c 13       		.uleb128 0x13
+ 2201 013d 01       		.uleb128 0x1
+ 2202 013e 13       		.uleb128 0x13
+ 2203 013f 00       		.byte	0
+ 2204 0140 00       		.byte	0
+ 2205 0141 19       		.uleb128 0x19
+ 2206 0142 21       		.uleb128 0x21
+ 2207 0143 00       		.byte	0
+ 2208 0144 49       		.uleb128 0x49
+ 2209 0145 13       		.uleb128 0x13
+ 2210 0146 2F       		.uleb128 0x2f
+ 2211 0147 0B       		.uleb128 0xb
+ 2212 0148 00       		.byte	0
+ 2213 0149 00       		.byte	0
+ 2214 014a 00       		.byte	0
+ 2215              		.section	.debug_aranges,"",%progbits
+ 2216 0000 24000000 		.4byte	0x24
+ 2217 0004 0200     		.2byte	0x2
+ 2218 0006 00000000 		.4byte	.Ldebug_info0
+ 2219 000a 04       		.byte	0x4
+ 2220 000b 00       		.byte	0
+ 2221 000c 0000     		.2byte	0
+ 2222 000e 0000     		.2byte	0
+ 2223 0010 00000000 		.4byte	.LFB35
+ 2224 0014 28010000 		.4byte	.LFE35-.LFB35
+ 2225 0018 00000000 		.4byte	.LFB36
+ 2226 001c 10020000 		.4byte	.LFE36-.LFB36
+ 2227 0020 00000000 		.4byte	0
+ 2228 0024 00000000 		.4byte	0
+ 2229              		.section	.debug_ranges,"",%progbits
+ 2230              	.Ldebug_ranges0:
+ 2231 0000 00000000 		.4byte	.LFB35
+ 2232 0004 28010000 		.4byte	.LFE35
+ 2233 0008 00000000 		.4byte	.LFB36
+ 2234 000c 10020000 		.4byte	.LFE36
+ 2235 0010 00000000 		.4byte	0
+ 2236 0014 00000000 		.4byte	0
+ 2237              		.section	.debug_line,"",%progbits
+ 2238              	.Ldebug_line0:
+ 2239 0000 21010000 		.section	.debug_str,"MS",%progbits,1
+ 2239      0200A400 
+ 2239      00000201 
+ 2239      FB0E0D00 
+ 2239      01010101 
+ 2240              	.LASF338:
+ 2241 0000 6164636D 		.ascii	"adcmVolts\000"
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 45
+
+
+ 2241      566F6C74 
+ 2241      7300
+ 2242              	.LASF323:
+ 2243 000a 4359424C 		.ascii	"CYBLE_EVT_UDSC_READ_CHAR_RESPONSE\000"
+ 2243      455F4556 
+ 2243      545F5544 
+ 2243      53435F52 
+ 2243      4541445F 
+ 2244              	.LASF253:
+ 2245 002c 4359424C 		.ascii	"CYBLE_EVT_HTSS_NOTIFICATION_DISABLED\000"
+ 2245      455F4556 
+ 2245      545F4854 
+ 2245      53535F4E 
+ 2245      4F544946 
+ 2246              	.LASF118:
+ 2247 0051 4359424C 		.ascii	"CYBLE_DIS_CHAR_COUNT\000"
+ 2247      455F4449 
+ 2247      535F4348 
+ 2247      41525F43 
+ 2247      4F554E54 
+ 2248              	.LASF17:
+ 2249 0066 73697A65 		.ascii	"sizetype\000"
+ 2249      74797065 
+ 2249      00
+ 2250              	.LASF321:
+ 2251 006f 4359424C 		.ascii	"CYBLE_EVT_UDSC_INDICATION\000"
+ 2251      455F4556 
+ 2251      545F5544 
+ 2251      53435F49 
+ 2251      4E444943 
+ 2252              	.LASF180:
+ 2253 0089 4359424C 		.ascii	"CYBLE_EVT_CGMSC_INDICATION\000"
+ 2253      455F4556 
+ 2253      545F4347 
+ 2253      4D53435F 
+ 2253      494E4449 
+ 2254              	.LASF198:
+ 2255 00a4 4359424C 		.ascii	"CYBLE_EVT_CPSC_READ_DESCR_RESPONSE\000"
+ 2255      455F4556 
+ 2255      545F4350 
+ 2255      53435F52 
+ 2255      4541445F 
+ 2256              	.LASF301:
+ 2257 00c7 4359424C 		.ascii	"CYBLE_EVT_RTUSS_WRITE_CHAR_CMD\000"
+ 2257      455F4556 
+ 2257      545F5254 
+ 2257      5553535F 
+ 2257      57524954 
+ 2258              	.LASF129:
+ 2259 00e6 63686172 		.ascii	"charIndex\000"
+ 2259      496E6465 
+ 2259      7800
+ 2260              	.LASF196:
+ 2261 00f0 4359424C 		.ascii	"CYBLE_EVT_CPSC_READ_CHAR_RESPONSE\000"
+ 2261      455F4556 
+ 2261      545F4350 
+ 2261      53435F52 
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 46
+
+
+ 2261      4541445F 
+ 2262              	.LASF209:
+ 2263 0112 4359424C 		.ascii	"CYBLE_EVT_CSCSC_READ_CHAR_RESPONSE\000"
+ 2263      455F4556 
+ 2263      545F4353 
+ 2263      4353435F 
+ 2263      52454144 
+ 2264              	.LASF185:
+ 2265 0135 4359424C 		.ascii	"CYBLE_EVT_CGMSC_WRITE_DESCR_RESPONSE\000"
+ 2265      455F4556 
+ 2265      545F4347 
+ 2265      4D53435F 
+ 2265      57524954 
+ 2266              	.LASF224:
+ 2267 015a 4359424C 		.ascii	"CYBLE_EVT_GLSS_NOTIFICATION_DISABLED\000"
+ 2267      455F4556 
+ 2267      545F474C 
+ 2267      53535F4E 
+ 2267      4F544946 
+ 2268              	.LASF329:
+ 2269 017f 6576656E 		.ascii	"eventParam\000"
+ 2269      74506172 
+ 2269      616D00
+ 2270              	.LASF171:
+ 2271 018a 4359424C 		.ascii	"CYBLE_EVT_BLSC_READ_CHAR_RESPONSE\000"
+ 2271      455F4556 
+ 2271      545F424C 
+ 2271      53435F52 
+ 2271      4541445F 
+ 2272              	.LASF31:
+ 2273 01ac 4359424C 		.ascii	"CYBLE_EVT_GAP_DEVICE_CONNECTED\000"
+ 2273      455F4556 
+ 2273      545F4741 
+ 2273      505F4445 
+ 2273      56494345 
+ 2274              	.LASF267:
+ 2275 01cb 4359424C 		.ascii	"CYBLE_EVT_LLSC_WRITE_CHAR_RESPONSE\000"
+ 2275      455F4556 
+ 2275      545F4C4C 
+ 2275      53435F57 
+ 2275      52495445 
+ 2276              	.LASF38:
+ 2277 01ee 4359424C 		.ascii	"CYBLE_EVT_GATT_CONNECT_IND\000"
+ 2277      455F4556 
+ 2277      545F4741 
+ 2277      54545F43 
+ 2277      4F4E4E45 
+ 2278              	.LASF126:
+ 2279 0209 4359424C 		.ascii	"CYBLE_HTS_VRD\000"
+ 2279      455F4854 
+ 2279      535F5652 
+ 2279      4400
+ 2280              	.LASF11:
+ 2281 0217 75696E74 		.ascii	"uint32\000"
+ 2281      333200
+ 2282              	.LASF142:
+ 2283 021e 4359424C 		.ascii	"CYBLE_EVT_GATTC_DESCR_DISCOVERY_FAILED\000"
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 47
+
+
+ 2283      455F4556 
+ 2283      545F4741 
+ 2283      5454435F 
+ 2283      44455343 
+ 2284              	.LASF300:
+ 2285 0245 4359424C 		.ascii	"CYBLE_EVT_RSCSC_WRITE_DESCR_RESPONSE\000"
+ 2285      455F4556 
+ 2285      545F5253 
+ 2285      4353435F 
+ 2285      57524954 
+ 2286              	.LASF269:
+ 2287 026a 4359424C 		.ascii	"CYBLE_EVT_LNSS_INDICATION_DISABLED\000"
+ 2287      455F4556 
+ 2287      545F4C4E 
+ 2287      53535F49 
+ 2287      4E444943 
+ 2288              	.LASF216:
+ 2289 028d 4359424C 		.ascii	"CYBLE_EVT_CTSC_READ_CHAR_RESPONSE\000"
+ 2289      455F4556 
+ 2289      545F4354 
+ 2289      53435F52 
+ 2289      4541445F 
+ 2290              	.LASF146:
+ 2291 02af 4359424C 		.ascii	"CYBLE_EVT_GATTC_SRVC_DISCOVERY_COMPLETE\000"
+ 2291      455F4556 
+ 2291      545F4741 
+ 2291      5454435F 
+ 2291      53525643 
+ 2292              	.LASF294:
+ 2293 02d7 4359424C 		.ascii	"CYBLE_EVT_RSCSS_CHAR_WRITE\000"
+ 2293      455F4556 
+ 2293      545F5253 
+ 2293      4353535F 
+ 2293      43484152 
+ 2294              	.LASF326:
+ 2295 02f2 4359424C 		.ascii	"CYBLE_EVT_UDSC_WRITE_DESCR_RESPONSE\000"
+ 2295      455F4556 
+ 2295      545F5544 
+ 2295      53435F57 
+ 2295      52495445 
+ 2296              	.LASF243:
+ 2297 0316 4359424C 		.ascii	"CYBLE_EVT_HIDSC_WRITE_DESCR_RESPONSE\000"
+ 2297      455F4556 
+ 2297      545F4849 
+ 2297      4453435F 
+ 2297      57524954 
+ 2298              	.LASF156:
+ 2299 033b 4359424C 		.ascii	"CYBLE_EVT_ANSC_READ_DESCR_RESPONSE\000"
+ 2299      455F4556 
+ 2299      545F414E 
+ 2299      53435F52 
+ 2299      4541445F 
+ 2300              	.LASF125:
+ 2301 035e 4359424C 		.ascii	"CYBLE_HTS_CCCD\000"
+ 2301      455F4854 
+ 2301      535F4343 
+ 2301      434400
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 48
+
+
+ 2302              	.LASF88:
+ 2303 036d 4359424C 		.ascii	"CYBLE_ERROR_L2CAP_CONNECTION_ENTITY_NOT_FOUND\000"
+ 2303      455F4552 
+ 2303      524F525F 
+ 2303      4C324341 
+ 2303      505F434F 
+ 2304              	.LASF334:
+ 2305 039b 41444343 		.ascii	"ADCCountsCorrected\000"
+ 2305      6F756E74 
+ 2305      73436F72 
+ 2305      72656374 
+ 2305      656400
+ 2306              	.LASF94:
+ 2307 03ae 4359424C 		.ascii	"CYBLE_ERROR_MIC_AUTH_FAILED\000"
+ 2307      455F4552 
+ 2307      524F525F 
+ 2307      4D49435F 
+ 2307      41555448 
+ 2308              	.LASF141:
+ 2309 03ca 4359424C 		.ascii	"CYBLE_EVT_GATTC_CHAR_DISCOVERY_FAILED\000"
+ 2309      455F4556 
+ 2309      545F4741 
+ 2309      5454435F 
+ 2309      43484152 
+ 2310              	.LASF58:
+ 2311 03f0 4359424C 		.ascii	"CYBLE_EVT_GATTS_DATA_SIGNED_CMD_REQ\000"
+ 2311      455F4556 
+ 2311      545F4741 
+ 2311      5454535F 
+ 2311      44415441 
+ 2312              	.LASF67:
+ 2313 0414 4359424C 		.ascii	"CYBLE_EVT_L2CAP_CBFC_RX_CREDIT_IND\000"
+ 2313      455F4556 
+ 2313      545F4C32 
+ 2313      4341505F 
+ 2313      43424643 
+ 2314              	.LASF108:
+ 2315 0437 4359424C 		.ascii	"CYBLE_GATT_VALUE_T\000"
+ 2315      455F4741 
+ 2315      54545F56 
+ 2315      414C5545 
+ 2315      5F5400
+ 2316              	.LASF203:
+ 2317 044a 4359424C 		.ascii	"CYBLE_EVT_CSCSS_INDICATION_ENABLED\000"
+ 2317      455F4556 
+ 2317      545F4353 
+ 2317      4353535F 
+ 2317      494E4449 
+ 2318              	.LASF274:
+ 2319 046d 4359424C 		.ascii	"CYBLE_EVT_LNSC_INDICATION\000"
+ 2319      455F4556 
+ 2319      545F4C4E 
+ 2319      53435F49 
+ 2319      4E444943 
+ 2320              	.LASF285:
+ 2321 0487 4359424C 		.ascii	"CYBLE_EVT_PASSC_READ_CHAR_RESPONSE\000"
+ 2321      455F4556 
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 49
+
+
+ 2321      545F5041 
+ 2321      5353435F 
+ 2321      52454144 
+ 2322              	.LASF164:
+ 2323 04aa 4359424C 		.ascii	"CYBLE_EVT_BLSS_INDICATION_ENABLED\000"
+ 2323      455F4556 
+ 2323      545F424C 
+ 2323      53535F49 
+ 2323      4E444943 
+ 2324              	.LASF170:
+ 2325 04cc 4359424C 		.ascii	"CYBLE_EVT_BLSC_NOTIFICATION\000"
+ 2325      455F4556 
+ 2325      545F424C 
+ 2325      53435F4E 
+ 2325      4F544946 
+ 2326              	.LASF208:
+ 2327 04e8 4359424C 		.ascii	"CYBLE_EVT_CSCSC_INDICATION\000"
+ 2327      455F4556 
+ 2327      545F4353 
+ 2327      4353435F 
+ 2327      494E4449 
+ 2328              	.LASF113:
+ 2329 0503 4359424C 		.ascii	"CYBLE_DIS_FIRMWARE_REV\000"
+ 2329      455F4449 
+ 2329      535F4649 
+ 2329      524D5741 
+ 2329      52455F52 
+ 2330              	.LASF55:
+ 2331 051a 4359424C 		.ascii	"CYBLE_EVT_GATTC_HANDLE_VALUE_NTF\000"
+ 2331      455F4556 
+ 2331      545F4741 
+ 2331      5454435F 
+ 2331      48414E44 
+ 2332              	.LASF25:
+ 2333 053b 4359424C 		.ascii	"CYBLE_EVT_GAP_AUTH_REQ\000"
+ 2333      455F4556 
+ 2333      545F4741 
+ 2333      505F4155 
+ 2333      54485F52 
+ 2334              	.LASF148:
+ 2335 0552 4359424C 		.ascii	"CYBLE_EVT_GATTC_CHAR_DISCOVERY_COMPLETE\000"
+ 2335      455F4556 
+ 2335      545F4741 
+ 2335      5454435F 
+ 2335      43484152 
+ 2336              	.LASF106:
+ 2337 057a 4359424C 		.ascii	"CYBLE_CONN_HANDLE_T\000"
+ 2337      455F434F 
+ 2337      4E4E5F48 
+ 2337      414E444C 
+ 2337      455F5400 
+ 2338              	.LASF249:
+ 2339 058e 4359424C 		.ascii	"CYBLE_EVT_HRSC_WRITE_CHAR_RESPONSE\000"
+ 2339      455F4556 
+ 2339      545F4852 
+ 2339      53435F57 
+ 2339      52495445 
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 50
+
+
+ 2340              	.LASF83:
+ 2341 05b1 4359424C 		.ascii	"CYBLE_ERROR_BT_ON_NOT_COMPLETED\000"
+ 2341      455F4552 
+ 2341      524F525F 
+ 2341      42545F4F 
+ 2341      4E5F4E4F 
+ 2342              	.LASF207:
+ 2343 05d1 4359424C 		.ascii	"CYBLE_EVT_CSCSC_NOTIFICATION\000"
+ 2343      455F4556 
+ 2343      545F4353 
+ 2343      4353435F 
+ 2343      4E4F5449 
+ 2344              	.LASF104:
+ 2345 05ee 62644861 		.ascii	"bdHandle\000"
+ 2345      6E646C65 
+ 2345      00
+ 2346              	.LASF337:
+ 2347 05f7 6D656173 		.ascii	"measure\000"
+ 2347      75726500 
+ 2348              	.LASF176:
+ 2349 05ff 4359424C 		.ascii	"CYBLE_EVT_CGMSS_INDICATION_CONFIRMED\000"
+ 2349      455F4556 
+ 2349      545F4347 
+ 2349      4D53535F 
+ 2349      494E4449 
+ 2350              	.LASF331:
+ 2351 0624 696E7465 		.ascii	"interval\000"
+ 2351      7276616C 
+ 2351      00
+ 2352              	.LASF172:
+ 2353 062d 4359424C 		.ascii	"CYBLE_EVT_BLSC_READ_DESCR_RESPONSE\000"
+ 2353      455F4556 
+ 2353      545F424C 
+ 2353      53435F52 
+ 2353      4541445F 
+ 2354              	.LASF189:
+ 2355 0650 4359424C 		.ascii	"CYBLE_EVT_CPSS_INDICATION_DISABLED\000"
+ 2355      455F4556 
+ 2355      545F4350 
+ 2355      53535F49 
+ 2355      4E444943 
+ 2356              	.LASF188:
+ 2357 0673 4359424C 		.ascii	"CYBLE_EVT_CPSS_INDICATION_ENABLED\000"
+ 2357      455F4556 
+ 2357      545F4350 
+ 2357      53535F49 
+ 2357      4E444943 
+ 2358              	.LASF271:
+ 2359 0695 4359424C 		.ascii	"CYBLE_EVT_LNSS_NOTIFICATION_ENABLED\000"
+ 2359      455F4556 
+ 2359      545F4C4E 
+ 2359      53535F4E 
+ 2359      4F544946 
+ 2360              	.LASF51:
+ 2361 06b9 4359424C 		.ascii	"CYBLE_EVT_GATTS_WRITE_CMD_REQ\000"
+ 2361      455F4556 
+ 2361      545F4741 
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 51
+
+
+ 2361      5454535F 
+ 2361      57524954 
+ 2362              	.LASF199:
+ 2363 06d7 4359424C 		.ascii	"CYBLE_EVT_CPSC_WRITE_DESCR_RESPONSE\000"
+ 2363      455F4556 
+ 2363      545F4350 
+ 2363      53435F57 
+ 2363      52495445 
+ 2364              	.LASF4:
+ 2365 06fb 6C6F6E67 		.ascii	"long int\000"
+ 2365      20696E74 
+ 2365      00
+ 2366              	.LASF131:
+ 2367 0704 4359424C 		.ascii	"CYBLE_HTS_CHAR_VALUE_T\000"
+ 2367      455F4854 
+ 2367      535F4348 
+ 2367      41525F56 
+ 2367      414C5545 
+ 2368              	.LASF204:
+ 2369 071b 4359424C 		.ascii	"CYBLE_EVT_CSCSS_INDICATION_DISABLED\000"
+ 2369      455F4556 
+ 2369      545F4353 
+ 2369      4353535F 
+ 2369      494E4449 
+ 2370              	.LASF286:
+ 2371 073f 4359424C 		.ascii	"CYBLE_EVT_PASSC_WRITE_CHAR_RESPONSE\000"
+ 2371      455F4556 
+ 2371      545F5041 
+ 2371      5353435F 
+ 2371      57524954 
+ 2372              	.LASF121:
+ 2373 0763 4359424C 		.ascii	"CYBLE_HTS_INTERM_TEMP\000"
+ 2373      455F4854 
+ 2373      535F494E 
+ 2373      5445524D 
+ 2373      5F54454D 
+ 2374              	.LASF317:
+ 2375 0779 4359424C 		.ascii	"CYBLE_EVT_UDSS_INDICATION_CONFIRMED\000"
+ 2375      455F4556 
+ 2375      545F5544 
+ 2375      53535F49 
+ 2375      4E444943 
+ 2376              	.LASF134:
+ 2377 079d 4359424C 		.ascii	"CYBLE_LONG_TERM_KEY_REQUEST_REPLY\000"
+ 2377      455F4C4F 
+ 2377      4E475F54 
+ 2377      45524D5F 
+ 2377      4B45595F 
+ 2378              	.LASF19:
+ 2379 07bf 4359424C 		.ascii	"CYBLE_EVT_STACK_ON\000"
+ 2379      455F4556 
+ 2379      545F5354 
+ 2379      41434B5F 
+ 2379      4F4E00
+ 2380              	.LASF90:
+ 2381 07d2 4359424C 		.ascii	"CYBLE_ERROR_L2CAP_PSM_NOT_IN_RANGE\000"
+ 2381      455F4552 
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 52
+
+
+ 2381      524F525F 
+ 2381      4C324341 
+ 2381      505F5053 
+ 2382              	.LASF112:
+ 2383 07f5 4359424C 		.ascii	"CYBLE_DIS_HARDWARE_REV\000"
+ 2383      455F4449 
+ 2383      535F4841 
+ 2383      52445741 
+ 2383      52455F52 
+ 2384              	.LASF297:
+ 2385 080c 4359424C 		.ascii	"CYBLE_EVT_RSCSC_READ_CHAR_RESPONSE\000"
+ 2385      455F4556 
+ 2385      545F5253 
+ 2385      4353435F 
+ 2385      52454144 
+ 2386              	.LASF252:
+ 2387 082f 4359424C 		.ascii	"CYBLE_EVT_HTSS_NOTIFICATION_ENABLED\000"
+ 2387      455F4556 
+ 2387      545F4854 
+ 2387      53535F4E 
+ 2387      4F544946 
+ 2388              	.LASF101:
+ 2389 0853 4359424C 		.ascii	"CYBLE_ERROR_CHAR_IS_NOT_DISCOVERED\000"
+ 2389      455F4552 
+ 2389      524F525F 
+ 2389      43484152 
+ 2389      5F49535F 
+ 2390              	.LASF239:
+ 2391 0876 4359424C 		.ascii	"CYBLE_EVT_HIDSC_NOTIFICATION\000"
+ 2391      455F4556 
+ 2391      545F4849 
+ 2391      4453435F 
+ 2391      4E4F5449 
+ 2392              	.LASF61:
+ 2393 0893 4359424C 		.ascii	"CYBLE_EVT_L2CAP_COMMAND_REJ\000"
+ 2393      455F4556 
+ 2393      545F4C32 
+ 2393      4341505F 
+ 2393      434F4D4D 
+ 2394              	.LASF139:
+ 2395 08af 4359424C 		.ascii	"CYBLE_EVT_GATTC_SRVC_DISCOVERY_FAILED\000"
+ 2395      455F4556 
+ 2395      545F4741 
+ 2395      5454435F 
+ 2395      53525643 
+ 2396              	.LASF236:
+ 2397 08d5 4359424C 		.ascii	"CYBLE_EVT_HIDSS_SUSPEND\000"
+ 2397      455F4556 
+ 2397      545F4849 
+ 2397      4453535F 
+ 2397      53555350 
+ 2398              	.LASF91:
+ 2399 08ed 4359424C 		.ascii	"CYBLE_ERROR_GATT_DB_INVALID_ATTR_HANDLE\000"
+ 2399      455F4552 
+ 2399      524F525F 
+ 2399      47415454 
+ 2399      5F44425F 
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 53
+
+
+ 2400              	.LASF0:
+ 2401 0915 7369676E 		.ascii	"signed char\000"
+ 2401      65642063 
+ 2401      68617200 
+ 2402              	.LASF162:
+ 2403 0921 4359424C 		.ascii	"CYBLE_EVT_BASC_READ_DESCR_RESPONSE\000"
+ 2403      455F4556 
+ 2403      545F4241 
+ 2403      53435F52 
+ 2403      4541445F 
+ 2404              	.LASF21:
+ 2405 0944 4359424C 		.ascii	"CYBLE_EVT_HARDWARE_ERROR\000"
+ 2405      455F4556 
+ 2405      545F4841 
+ 2405      52445741 
+ 2405      52455F45 
+ 2406              	.LASF72:
+ 2407 095d 4359424C 		.ascii	"CYBLE_ERROR_OK\000"
+ 2407      455F4552 
+ 2407      524F525F 
+ 2407      4F4B00
+ 2408              	.LASF42:
+ 2409 096c 4359424C 		.ascii	"CYBLE_EVT_GATTC_READ_BY_GROUP_TYPE_RSP\000"
+ 2409      455F4556 
+ 2409      545F4741 
+ 2409      5454435F 
+ 2409      52454144 
+ 2410              	.LASF291:
+ 2411 0993 4359424C 		.ascii	"CYBLE_EVT_RSCSS_INDICATION_ENABLED\000"
+ 2411      455F4556 
+ 2411      545F5253 
+ 2411      4353535F 
+ 2411      494E4449 
+ 2412              	.LASF1:
+ 2413 09b6 756E7369 		.ascii	"unsigned char\000"
+ 2413      676E6564 
+ 2413      20636861 
+ 2413      7200
+ 2414              	.LASF41:
+ 2415 09c4 4359424C 		.ascii	"CYBLE_EVT_GATTC_XCHNG_MTU_RSP\000"
+ 2415      455F4556 
+ 2415      545F4741 
+ 2415      5454435F 
+ 2415      5843484E 
+ 2416              	.LASF190:
+ 2417 09e2 4359424C 		.ascii	"CYBLE_EVT_CPSS_INDICATION_CONFIRMED\000"
+ 2417      455F4556 
+ 2417      545F4350 
+ 2417      53535F49 
+ 2417      4E444943 
+ 2418              	.LASF127:
+ 2419 0a06 4359424C 		.ascii	"CYBLE_HTS_DESCR_COUNT\000"
+ 2419      455F4854 
+ 2419      535F4445 
+ 2419      5343525F 
+ 2419      434F554E 
+ 2420              	.LASF187:
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 54
+
+
+ 2421 0a1c 4359424C 		.ascii	"CYBLE_EVT_CPSS_NOTIFICATION_DISABLED\000"
+ 2421      455F4556 
+ 2421      545F4350 
+ 2421      53535F4E 
+ 2421      4F544946 
+ 2422              	.LASF296:
+ 2423 0a41 4359424C 		.ascii	"CYBLE_EVT_RSCSC_INDICATION\000"
+ 2423      455F4556 
+ 2423      545F5253 
+ 2423      4353435F 
+ 2423      494E4449 
+ 2424              	.LASF68:
+ 2425 0a5c 4359424C 		.ascii	"CYBLE_EVT_L2CAP_CBFC_TX_CREDIT_IND\000"
+ 2425      455F4556 
+ 2425      545F4C32 
+ 2425      4341505F 
+ 2425      43424643 
+ 2426              	.LASF138:
+ 2427 0a7f 4359424C 		.ascii	"CYBLE_EVT_GATTC_INDICATION\000"
+ 2427      455F4556 
+ 2427      545F4741 
+ 2427      5454435F 
+ 2427      494E4449 
+ 2428              	.LASF303:
+ 2429 0a9a 4359424C 		.ascii	"CYBLE_EVT_SCPSS_NOTIFICATION_ENABLED\000"
+ 2429      455F4556 
+ 2429      545F5343 
+ 2429      5053535F 
+ 2429      4E4F5449 
+ 2430              	.LASF65:
+ 2431 0abf 4359424C 		.ascii	"CYBLE_EVT_L2CAP_CBFC_DISCONN_CNF\000"
+ 2431      455F4556 
+ 2431      545F4C32 
+ 2431      4341505F 
+ 2431      43424643 
+ 2432              	.LASF45:
+ 2433 0ae0 4359424C 		.ascii	"CYBLE_EVT_GATTC_FIND_BY_TYPE_VALUE_RSP\000"
+ 2433      455F4556 
+ 2433      545F4741 
+ 2433      5454435F 
+ 2433      46494E44 
+ 2434              	.LASF308:
+ 2435 0b07 4359424C 		.ascii	"CYBLE_EVT_SCPSC_WRITE_DESCR_RESPONSE\000"
+ 2435      455F4556 
+ 2435      545F5343 
+ 2435      5053435F 
+ 2435      57524954 
+ 2436              	.LASF16:
+ 2437 0b2c 63686172 		.ascii	"char\000"
+ 2437      00
+ 2438              	.LASF311:
+ 2439 0b31 4359424C 		.ascii	"CYBLE_EVT_TPSC_NOTIFICATION\000"
+ 2439      455F4556 
+ 2439      545F5450 
+ 2439      53435F4E 
+ 2439      4F544946 
+ 2440              	.LASF348:
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 55
+
+
+ 2441 0b4d 2E5C6874 		.ascii	".\\hts.c\000"
+ 2441      732E6300 
+ 2442              	.LASF48:
+ 2443 0b55 4359424C 		.ascii	"CYBLE_EVT_GATTC_READ_MULTI_RSP\000"
+ 2443      455F4556 
+ 2443      545F4741 
+ 2443      5454435F 
+ 2443      52454144 
+ 2444              	.LASF18:
+ 2445 0b74 4359424C 		.ascii	"CYBLE_EVT_HOST_INVALID\000"
+ 2445      455F4556 
+ 2445      545F484F 
+ 2445      53545F49 
+ 2445      4E56414C 
+ 2446              	.LASF230:
+ 2447 0b8b 4359424C 		.ascii	"CYBLE_EVT_GLSC_READ_DESCR_RESPONSE\000"
+ 2447      455F4556 
+ 2447      545F474C 
+ 2447      53435F52 
+ 2447      4541445F 
+ 2448              	.LASF79:
+ 2449 0bae 4359424C 		.ascii	"CYBLE_ERROR_NO_DEVICE_ENTITY\000"
+ 2449      455F4552 
+ 2449      524F525F 
+ 2449      4E4F5F44 
+ 2449      45564943 
+ 2450              	.LASF47:
+ 2451 0bcb 4359424C 		.ascii	"CYBLE_EVT_GATTC_READ_BLOB_RSP\000"
+ 2451      455F4556 
+ 2451      545F4741 
+ 2451      5454435F 
+ 2451      52454144 
+ 2452              	.LASF255:
+ 2453 0be9 4359424C 		.ascii	"CYBLE_EVT_HTSS_INDICATION_DISABLED\000"
+ 2453      455F4556 
+ 2453      545F4854 
+ 2453      53535F49 
+ 2453      4E444943 
+ 2454              	.LASF302:
+ 2455 0c0c 4359424C 		.ascii	"CYBLE_EVT_RTUSC_READ_CHAR_RESPONSE\000"
+ 2455      455F4556 
+ 2455      545F5254 
+ 2455      5553435F 
+ 2455      52454144 
+ 2456              	.LASF54:
+ 2457 0c2f 4359424C 		.ascii	"CYBLE_EVT_GATTC_EXEC_WRITE_RSP\000"
+ 2457      455F4556 
+ 2457      545F4741 
+ 2457      5454435F 
+ 2457      45584543 
+ 2458              	.LASF316:
+ 2459 0c4e 4359424C 		.ascii	"CYBLE_EVT_UDSS_INDICATION_DISABLED\000"
+ 2459      455F4556 
+ 2459      545F5544 
+ 2459      53535F49 
+ 2459      4E444943 
+ 2460              	.LASF114:
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 56
+
+
+ 2461 0c71 4359424C 		.ascii	"CYBLE_DIS_SOFTWARE_REV\000"
+ 2461      455F4449 
+ 2461      535F534F 
+ 2461      46545741 
+ 2461      52455F52 
+ 2462              	.LASF193:
+ 2463 0c88 4359424C 		.ascii	"CYBLE_EVT_CPSS_CHAR_WRITE\000"
+ 2463      455F4556 
+ 2463      545F4350 
+ 2463      53535F43 
+ 2463      4841525F 
+ 2464              	.LASF244:
+ 2465 0ca2 4359424C 		.ascii	"CYBLE_EVT_HRSS_ENERGY_EXPENDED_RESET\000"
+ 2465      455F4556 
+ 2465      545F4852 
+ 2465      53535F45 
+ 2465      4E455247 
+ 2466              	.LASF110:
+ 2467 0cc7 4359424C 		.ascii	"CYBLE_DIS_MODEL_NUMBER\000"
+ 2467      455F4449 
+ 2467      535F4D4F 
+ 2467      44454C5F 
+ 2467      4E554D42 
+ 2468              	.LASF344:
+ 2469 0cde 74656D70 		.ascii	"temperatureTimer\000"
+ 2469      65726174 
+ 2469      75726554 
+ 2469      696D6572 
+ 2469      00
+ 2470              	.LASF167:
+ 2471 0cef 4359424C 		.ascii	"CYBLE_EVT_BLSS_NOTIFICATION_ENABLED\000"
+ 2471      455F4556 
+ 2471      545F424C 
+ 2471      53535F4E 
+ 2471      4F544946 
+ 2472              	.LASF115:
+ 2473 0d13 4359424C 		.ascii	"CYBLE_DIS_SYSTEM_ID\000"
+ 2473      455F4449 
+ 2473      535F5359 
+ 2473      5354454D 
+ 2473      5F494400 
+ 2474              	.LASF73:
+ 2475 0d27 4359424C 		.ascii	"CYBLE_ERROR_INVALID_PARAMETER\000"
+ 2475      455F4552 
+ 2475      524F525F 
+ 2475      494E5641 
+ 2475      4C49445F 
+ 2476              	.LASF346:
+ 2477 0d45 74656D70 		.ascii	"temp_data\000"
+ 2477      5F646174 
+ 2477      6100
+ 2478              	.LASF298:
+ 2479 0d4f 4359424C 		.ascii	"CYBLE_EVT_RSCSC_WRITE_CHAR_RESPONSE\000"
+ 2479      455F4556 
+ 2479      545F5253 
+ 2479      4353435F 
+ 2479      57524954 
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 57
+
+
+ 2480              	.LASF314:
+ 2481 0d73 4359424C 		.ascii	"CYBLE_EVT_TPSC_WRITE_DESCR_RESPONSE\000"
+ 2481      455F4556 
+ 2481      545F5450 
+ 2481      53435F57 
+ 2481      52495445 
+ 2482              	.LASF202:
+ 2483 0d97 4359424C 		.ascii	"CYBLE_EVT_CSCSS_NOTIFICATION_DISABLED\000"
+ 2483      455F4556 
+ 2483      545F4353 
+ 2483      4353535F 
+ 2483      4E4F5449 
+ 2484              	.LASF213:
+ 2485 0dbd 4359424C 		.ascii	"CYBLE_EVT_CTSS_NOTIFICATION_ENABLED\000"
+ 2485      455F4556 
+ 2485      545F4354 
+ 2485      53535F4E 
+ 2485      4F544946 
+ 2486              	.LASF292:
+ 2487 0de1 4359424C 		.ascii	"CYBLE_EVT_RSCSS_INDICATION_DISABLED\000"
+ 2487      455F4556 
+ 2487      545F5253 
+ 2487      4353535F 
+ 2487      494E4449 
+ 2488              	.LASF98:
+ 2489 0e05 4359424C 		.ascii	"CYBLE_DESCR_DISC_DONE\000"
+ 2489      455F4445 
+ 2489      5343525F 
+ 2489      44495343 
+ 2489      5F444F4E 
+ 2490              	.LASF265:
+ 2491 0e1b 4359424C 		.ascii	"CYBLE_EVT_LLSS_WRITE_CHAR_REQ\000"
+ 2491      455F4556 
+ 2491      545F4C4C 
+ 2491      53535F57 
+ 2491      52495445 
+ 2492              	.LASF75:
+ 2493 0e39 4359424C 		.ascii	"CYBLE_ERROR_MEMORY_ALLOCATION_FAILED\000"
+ 2493      455F4552 
+ 2493      524F525F 
+ 2493      4D454D4F 
+ 2493      52595F41 
+ 2494              	.LASF250:
+ 2495 0e5e 4359424C 		.ascii	"CYBLE_EVT_HRSC_READ_DESCR_RESPONSE\000"
+ 2495      455F4556 
+ 2495      545F4852 
+ 2495      53435F52 
+ 2495      4541445F 
+ 2496              	.LASF201:
+ 2497 0e81 4359424C 		.ascii	"CYBLE_EVT_CSCSS_NOTIFICATION_ENABLED\000"
+ 2497      455F4556 
+ 2497      545F4353 
+ 2497      4353535F 
+ 2497      4E4F5449 
+ 2498              	.LASF169:
+ 2499 0ea6 4359424C 		.ascii	"CYBLE_EVT_BLSC_INDICATION\000"
+ 2499      455F4556 
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 58
+
+
+ 2499      545F424C 
+ 2499      53435F49 
+ 2499      4E444943 
+ 2500              	.LASF238:
+ 2501 0ec0 4359424C 		.ascii	"CYBLE_EVT_HIDSS_REPORT_CHAR_WRITE\000"
+ 2501      455F4556 
+ 2501      545F4849 
+ 2501      4453535F 
+ 2501      5245504F 
+ 2502              	.LASF95:
+ 2503 0ee2 4359424C 		.ascii	"CYBLE_ERROR_MAX\000"
+ 2503      455F4552 
+ 2503      524F525F 
+ 2503      4D415800 
+ 2504              	.LASF277:
+ 2505 0ef2 4359424C 		.ascii	"CYBLE_EVT_LNSC_WRITE_CHAR_RESPONSE\000"
+ 2505      455F4556 
+ 2505      545F4C4E 
+ 2505      53435F57 
+ 2505      52495445 
+ 2506              	.LASF60:
+ 2507 0f15 4359424C 		.ascii	"CYBLE_EVT_L2CAP_CONN_PARAM_UPDATE_RSP\000"
+ 2507      455F4556 
+ 2507      545F4C32 
+ 2507      4341505F 
+ 2507      434F4E4E 
+ 2508              	.LASF349:
+ 2509 0f3b 433A5C55 		.ascii	"C:\\Users\\Zachary\\Desktop\\embedded\\Ozturk Lab -"
+ 2509      73657273 
+ 2509      5C5A6163 
+ 2509      68617279 
+ 2509      5C446573 
+ 2510 0f69 2035202D 		.ascii	" 5 - Rev 1\\Design02\\BLE_Temperature_Measurement01"
+ 2510      20526576 
+ 2510      20315C44 
+ 2510      65736967 
+ 2510      6E30325C 
+ 2511 0f9a 2E637964 		.ascii	".cydsn\000"
+ 2511      736E00
+ 2512              	.LASF339:
+ 2513 0fa1 61646352 		.ascii	"adcResult\000"
+ 2513      6573756C 
+ 2513      7400
+ 2514              	.LASF155:
+ 2515 0fab 4359424C 		.ascii	"CYBLE_EVT_ANSC_WRITE_CHAR_RESPONSE\000"
+ 2515      455F4556 
+ 2515      545F414E 
+ 2515      53435F57 
+ 2515      52495445 
+ 2516              	.LASF319:
+ 2517 0fce 4359424C 		.ascii	"CYBLE_EVT_UDSS_NOTIFICATION_DISABLED\000"
+ 2517      455F4556 
+ 2517      545F5544 
+ 2517      53535F4E 
+ 2517      4F544946 
+ 2518              	.LASF320:
+ 2519 0ff3 4359424C 		.ascii	"CYBLE_EVT_UDSS_WRITE_CHAR\000"
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 59
+
+
+ 2519      455F4556 
+ 2519      545F5544 
+ 2519      53535F57 
+ 2519      52495445 
+ 2520              	.LASF245:
+ 2521 100d 4359424C 		.ascii	"CYBLE_EVT_HRSS_NOTIFICATION_ENABLED\000"
+ 2521      455F4556 
+ 2521      545F4852 
+ 2521      53535F4E 
+ 2521      4F544946 
+ 2522              	.LASF28:
+ 2523 1031 4359424C 		.ascii	"CYBLE_EVT_GAP_AUTH_COMPLETE\000"
+ 2523      455F4556 
+ 2523      545F4741 
+ 2523      505F4155 
+ 2523      54485F43 
+ 2524              	.LASF287:
+ 2525 104d 4359424C 		.ascii	"CYBLE_EVT_PASSC_READ_DESCR_RESPONSE\000"
+ 2525      455F4556 
+ 2525      545F5041 
+ 2525      5353435F 
+ 2525      52454144 
+ 2526              	.LASF29:
+ 2527 1071 4359424C 		.ascii	"CYBLE_EVT_GAP_AUTH_FAILED\000"
+ 2527      455F4556 
+ 2527      545F4741 
+ 2527      505F4155 
+ 2527      54485F46 
+ 2528              	.LASF237:
+ 2529 108b 4359424C 		.ascii	"CYBLE_EVT_HIDSS_EXIT_SUSPEND\000"
+ 2529      455F4556 
+ 2529      545F4849 
+ 2529      4453535F 
+ 2529      45584954 
+ 2530              	.LASF96:
+ 2531 10a8 4359424C 		.ascii	"CYBLE_INCL_DISC_DONE\000"
+ 2531      455F494E 
+ 2531      434C5F44 
+ 2531      4953435F 
+ 2531      444F4E45 
+ 2532              	.LASF218:
+ 2533 10bd 4359424C 		.ascii	"CYBLE_EVT_CTSC_WRITE_DESCR_RESPONSE\000"
+ 2533      455F4556 
+ 2533      545F4354 
+ 2533      53435F57 
+ 2533      52495445 
+ 2534              	.LASF76:
+ 2535 10e1 4359424C 		.ascii	"CYBLE_ERROR_INSUFFICIENT_RESOURCES\000"
+ 2535      455F4552 
+ 2535      524F525F 
+ 2535      494E5355 
+ 2535      46464943 
+ 2536              	.LASF290:
+ 2537 1104 4359424C 		.ascii	"CYBLE_EVT_RSCSS_NOTIFICATION_DISABLED\000"
+ 2537      455F4556 
+ 2537      545F5253 
+ 2537      4353535F 
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 60
+
+
+ 2537      4E4F5449 
+ 2538              	.LASF241:
+ 2539 112a 4359424C 		.ascii	"CYBLE_EVT_HIDSC_WRITE_CHAR_RESPONSE\000"
+ 2539      455F4556 
+ 2539      545F4849 
+ 2539      4453435F 
+ 2539      57524954 
+ 2540              	.LASF5:
+ 2541 114e 6C6F6E67 		.ascii	"long unsigned int\000"
+ 2541      20756E73 
+ 2541      69676E65 
+ 2541      6420696E 
+ 2541      7400
+ 2542              	.LASF264:
+ 2543 1160 4359424C 		.ascii	"CYBLE_EVT_IASS_WRITE_CHAR_CMD\000"
+ 2543      455F4556 
+ 2543      545F4941 
+ 2543      53535F57 
+ 2543      52495445 
+ 2544              	.LASF281:
+ 2545 117e 4359424C 		.ascii	"CYBLE_EVT_PASSS_NOTIFICATION_ENABLED\000"
+ 2545      455F4556 
+ 2545      545F5041 
+ 2545      5353535F 
+ 2545      4E4F5449 
+ 2546              	.LASF284:
+ 2547 11a3 4359424C 		.ascii	"CYBLE_EVT_PASSC_NOTIFICATION\000"
+ 2547      455F4556 
+ 2547      545F5041 
+ 2547      5353435F 
+ 2547      4E4F5449 
+ 2548              	.LASF154:
+ 2549 11c0 4359424C 		.ascii	"CYBLE_EVT_ANSC_READ_CHAR_RESPONSE\000"
+ 2549      455F4556 
+ 2549      545F414E 
+ 2549      53435F52 
+ 2549      4541445F 
+ 2550              	.LASF86:
+ 2551 11e2 4359424C 		.ascii	"CYBLE_ERROR_L2CAP_PSM_ALREADY_REGISTERED\000"
+ 2551      455F4552 
+ 2551      524F525F 
+ 2551      4C324341 
+ 2551      505F5053 
+ 2552              	.LASF257:
+ 2553 120b 4359424C 		.ascii	"CYBLE_EVT_HTSS_CHAR_WRITE\000"
+ 2553      455F4556 
+ 2553      545F4854 
+ 2553      53535F43 
+ 2553      4841525F 
+ 2554              	.LASF158:
+ 2555 1225 4359424C 		.ascii	"CYBLE_EVT_BASS_NOTIFICATION_ENABLED\000"
+ 2555      455F4556 
+ 2555      545F4241 
+ 2555      53535F4E 
+ 2555      4F544946 
+ 2556              	.LASF283:
+ 2557 1249 4359424C 		.ascii	"CYBLE_EVT_PASSS_WRITE_CHAR\000"
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 61
+
+
+ 2557      455F4556 
+ 2557      545F5041 
+ 2557      5353535F 
+ 2557      57524954 
+ 2558              	.LASF197:
+ 2559 1264 4359424C 		.ascii	"CYBLE_EVT_CPSC_WRITE_CHAR_RESPONSE\000"
+ 2559      455F4556 
+ 2559      545F4350 
+ 2559      53435F57 
+ 2559      52495445 
+ 2560              	.LASF111:
+ 2561 1287 4359424C 		.ascii	"CYBLE_DIS_SERIAL_NUMBER\000"
+ 2561      455F4449 
+ 2561      535F5345 
+ 2561      5249414C 
+ 2561      5F4E554D 
+ 2562              	.LASF122:
+ 2563 129f 4359424C 		.ascii	"CYBLE_HTS_MEASURE_INTERVAL\000"
+ 2563      455F4854 
+ 2563      535F4D45 
+ 2563      41535552 
+ 2563      455F494E 
+ 2564              	.LASF34:
+ 2565 12ba 4359424C 		.ascii	"CYBLE_EVT_GAP_CONNECTION_UPDATE_COMPLETE\000"
+ 2565      455F4556 
+ 2565      545F4741 
+ 2565      505F434F 
+ 2565      4E4E4543 
+ 2566              	.LASF182:
+ 2567 12e3 4359424C 		.ascii	"CYBLE_EVT_CGMSC_READ_CHAR_RESPONSE\000"
+ 2567      455F4556 
+ 2567      545F4347 
+ 2567      4D53435F 
+ 2567      52454144 
+ 2568              	.LASF124:
+ 2569 1306 4359424C 		.ascii	"CYBLE_HTS_CHAR_INDEX_T\000"
+ 2569      455F4854 
+ 2569      535F4348 
+ 2569      41525F49 
+ 2569      4E444558 
+ 2570              	.LASF210:
+ 2571 131d 4359424C 		.ascii	"CYBLE_EVT_CSCSC_WRITE_CHAR_RESPONSE\000"
+ 2571      455F4556 
+ 2571      545F4353 
+ 2571      4353435F 
+ 2571      57524954 
+ 2572              	.LASF64:
+ 2573 1341 4359424C 		.ascii	"CYBLE_EVT_L2CAP_CBFC_DISCONN_IND\000"
+ 2573      455F4556 
+ 2573      545F4C32 
+ 2573      4341505F 
+ 2573      43424643 
+ 2574              	.LASF206:
+ 2575 1362 4359424C 		.ascii	"CYBLE_EVT_CSCSS_CHAR_WRITE\000"
+ 2575      455F4556 
+ 2575      545F4353 
+ 2575      4353535F 
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 62
+
+
+ 2575      43484152 
+ 2576              	.LASF26:
+ 2577 137d 4359424C 		.ascii	"CYBLE_EVT_GAP_PASSKEY_ENTRY_REQUEST\000"
+ 2577      455F4556 
+ 2577      545F4741 
+ 2577      505F5041 
+ 2577      53534B45 
+ 2578              	.LASF272:
+ 2579 13a1 4359424C 		.ascii	"CYBLE_EVT_LNSS_NOTIFICATION_DISABLED\000"
+ 2579      455F4556 
+ 2579      545F4C4E 
+ 2579      53535F4E 
+ 2579      4F544946 
+ 2580              	.LASF191:
+ 2581 13c6 4359424C 		.ascii	"CYBLE_EVT_CPSS_BROADCAST_ENABLED\000"
+ 2581      455F4556 
+ 2581      545F4350 
+ 2581      53535F42 
+ 2581      524F4144 
+ 2582              	.LASF258:
+ 2583 13e7 4359424C 		.ascii	"CYBLE_EVT_HTSC_NOTIFICATION\000"
+ 2583      455F4556 
+ 2583      545F4854 
+ 2583      53435F4E 
+ 2583      4F544946 
+ 2584              	.LASF6:
+ 2585 1403 6C6F6E67 		.ascii	"long long int\000"
+ 2585      206C6F6E 
+ 2585      6720696E 
+ 2585      7400
+ 2586              	.LASF312:
+ 2587 1411 4359424C 		.ascii	"CYBLE_EVT_TPSC_READ_CHAR_RESPONSE\000"
+ 2587      455F4556 
+ 2587      545F5450 
+ 2587      53435F52 
+ 2587      4541445F 
+ 2588              	.LASF117:
+ 2589 1433 4359424C 		.ascii	"CYBLE_DIS_PNP_ID\000"
+ 2589      455F4449 
+ 2589      535F504E 
+ 2589      505F4944 
+ 2589      00
+ 2590              	.LASF144:
+ 2591 1444 4359424C 		.ascii	"CYBLE_EVT_GATTC_CHAR_DUPLICATION\000"
+ 2591      455F4556 
+ 2591      545F4741 
+ 2591      5454435F 
+ 2591      43484152 
+ 2592              	.LASF223:
+ 2593 1465 4359424C 		.ascii	"CYBLE_EVT_GLSS_NOTIFICATION_ENABLED\000"
+ 2593      455F4556 
+ 2593      545F474C 
+ 2593      53535F4E 
+ 2593      4F544946 
+ 2594              	.LASF87:
+ 2595 1489 4359424C 		.ascii	"CYBLE_ERROR_L2CAP_PSM_NOT_REGISTERED\000"
+ 2595      455F4552 
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 63
+
+
+ 2595      524F525F 
+ 2595      4C324341 
+ 2595      505F5053 
+ 2596              	.LASF77:
+ 2597 14ae 4359424C 		.ascii	"CYBLE_ERROR_OOB_NOT_AVAILABLE\000"
+ 2597      455F4552 
+ 2597      524F525F 
+ 2597      4F4F425F 
+ 2597      4E4F545F 
+ 2598              	.LASF174:
+ 2599 14cc 4359424C 		.ascii	"CYBLE_EVT_CGMSS_INDICATION_ENABLED\000"
+ 2599      455F4556 
+ 2599      545F4347 
+ 2599      4D53535F 
+ 2599      494E4449 
+ 2600              	.LASF15:
+ 2601 14ef 646F7562 		.ascii	"double\000"
+ 2601      6C6500
+ 2602              	.LASF92:
+ 2603 14f6 4359424C 		.ascii	"CYBLE_ERROR_DEVICE_ALREADY_EXISTS\000"
+ 2603      455F4552 
+ 2603      524F525F 
+ 2603      44455649 
+ 2603      43455F41 
+ 2604              	.LASF70:
+ 2605 1518 4359424C 		.ascii	"CYBLE_EVT_PENDING_FLASH_WRITE\000"
+ 2605      455F4556 
+ 2605      545F5045 
+ 2605      4E44494E 
+ 2605      475F464C 
+ 2606              	.LASF147:
+ 2607 1536 4359424C 		.ascii	"CYBLE_EVT_GATTC_INCL_DISCOVERY_COMPLETE\000"
+ 2607      455F4556 
+ 2607      545F4741 
+ 2607      5454435F 
+ 2607      494E434C 
+ 2608              	.LASF279:
+ 2609 155e 4359424C 		.ascii	"CYBLE_EVT_LNSC_WRITE_DESCR_RESPONSE\000"
+ 2609      455F4556 
+ 2609      545F4C4E 
+ 2609      53435F57 
+ 2609      52495445 
+ 2610              	.LASF266:
+ 2611 1582 4359424C 		.ascii	"CYBLE_EVT_LLSC_READ_CHAR_RESPONSE\000"
+ 2611      455F4556 
+ 2611      545F4C4C 
+ 2611      53435F52 
+ 2611      4541445F 
+ 2612              	.LASF205:
+ 2613 15a4 4359424C 		.ascii	"CYBLE_EVT_CSCSS_INDICATION_CONFIRMATION\000"
+ 2613      455F4556 
+ 2613      545F4353 
+ 2613      4353535F 
+ 2613      494E4449 
+ 2614              	.LASF89:
+ 2615 15cc 4359424C 		.ascii	"CYBLE_ERROR_L2CAP_CHANNEL_NOT_FOUND\000"
+ 2615      455F4552 
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 64
+
+
+ 2615      524F525F 
+ 2615      4C324341 
+ 2615      505F4348 
+ 2616              	.LASF80:
+ 2617 15f0 4359424C 		.ascii	"CYBLE_ERROR_REPEATED_ATTEMPTS\000"
+ 2617      455F4552 
+ 2617      524F525F 
+ 2617      52455045 
+ 2617      41544544 
+ 2618              	.LASF14:
+ 2619 160e 666C6F61 		.ascii	"float\000"
+ 2619      7400
+ 2620              	.LASF306:
+ 2621 1614 4359424C 		.ascii	"CYBLE_EVT_SCPSC_NOTIFICATION\000"
+ 2621      455F4556 
+ 2621      545F5343 
+ 2621      5053435F 
+ 2621      4E4F5449 
+ 2622              	.LASF235:
+ 2623 1631 4359424C 		.ascii	"CYBLE_EVT_HIDSS_REPORT_MODE_ENTER\000"
+ 2623      455F4556 
+ 2623      545F4849 
+ 2623      4453535F 
+ 2623      5245504F 
+ 2624              	.LASF93:
+ 2625 1653 4359424C 		.ascii	"CYBLE_ERROR_FLASH_WRITE_NOT_PERMITED\000"
+ 2625      455F4552 
+ 2625      524F525F 
+ 2625      464C4153 
+ 2625      485F5752 
+ 2626              	.LASF233:
+ 2627 1678 4359424C 		.ascii	"CYBLE_EVT_HIDSS_NOTIFICATION_DISABLED\000"
+ 2627      455F4556 
+ 2627      545F4849 
+ 2627      4453535F 
+ 2627      4E4F5449 
+ 2628              	.LASF328:
+ 2629 169e 6576656E 		.ascii	"event\000"
+ 2629      7400
+ 2630              	.LASF322:
+ 2631 16a4 4359424C 		.ascii	"CYBLE_EVT_UDSC_NOTIFICATION\000"
+ 2631      455F4556 
+ 2631      545F5544 
+ 2631      53435F4E 
+ 2631      4F544946 
+ 2632              	.LASF8:
+ 2633 16c0 756E7369 		.ascii	"unsigned int\000"
+ 2633      676E6564 
+ 2633      20696E74 
+ 2633      00
+ 2634              	.LASF52:
+ 2635 16cd 4359424C 		.ascii	"CYBLE_EVT_GATTS_PREP_WRITE_REQ\000"
+ 2635      455F4556 
+ 2635      545F4741 
+ 2635      5454535F 
+ 2635      50524550 
+ 2636              	.LASF214:
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 65
+
+
+ 2637 16ec 4359424C 		.ascii	"CYBLE_EVT_CTSS_NOTIFICATION_DISABLED\000"
+ 2637      455F4556 
+ 2637      545F4354 
+ 2637      53535F4E 
+ 2637      4F544946 
+ 2638              	.LASF165:
+ 2639 1711 4359424C 		.ascii	"CYBLE_EVT_BLSS_INDICATION_DISABLED\000"
+ 2639      455F4556 
+ 2639      545F424C 
+ 2639      53535F49 
+ 2639      4E444943 
+ 2640              	.LASF116:
+ 2641 1734 4359424C 		.ascii	"CYBLE_DIS_REG_CERT_DATA\000"
+ 2641      455F4449 
+ 2641      535F5245 
+ 2641      475F4345 
+ 2641      52545F44 
+ 2642              	.LASF304:
+ 2643 174c 4359424C 		.ascii	"CYBLE_EVT_SCPSS_NOTIFICATION_DISABLED\000"
+ 2643      455F4556 
+ 2643      545F5343 
+ 2643      5053535F 
+ 2643      4E4F5449 
+ 2644              	.LASF347:
+ 2645 1772 474E5520 		.ascii	"GNU C 4.8.4 20140526 (release) [ARM/embedded-4_8-br"
+ 2645      4320342E 
+ 2645      382E3420 
+ 2645      32303134 
+ 2645      30353236 
+ 2646 17a5 616E6368 		.ascii	"anch revision 211358] -mcpu=cortex-m0 -mthumb -g -O"
+ 2646      20726576 
+ 2646      6973696F 
+ 2646      6E203231 
+ 2646      31333538 
+ 2647 17d8 30202D66 		.ascii	"0 -ffunction-sections\000"
+ 2647      66756E63 
+ 2647      74696F6E 
+ 2647      2D736563 
+ 2647      74696F6E 
+ 2648              	.LASF132:
+ 2649 17ee 4359424C 		.ascii	"CYBLE_AUTHENTICATION_REQUEST_REPLY\000"
+ 2649      455F4155 
+ 2649      5448454E 
+ 2649      54494341 
+ 2649      54494F4E 
+ 2650              	.LASF85:
+ 2651 1811 4359424C 		.ascii	"CYBLE_ERROR_L2CAP_PSM_WRONG_ENCODING\000"
+ 2651      455F4552 
+ 2651      524F525F 
+ 2651      4C324341 
+ 2651      505F5053 
+ 2652              	.LASF168:
+ 2653 1836 4359424C 		.ascii	"CYBLE_EVT_BLSS_NOTIFICATION_DISABLED\000"
+ 2653      455F4556 
+ 2653      545F424C 
+ 2653      53535F4E 
+ 2653      4F544946 
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 66
+
+
+ 2654              	.LASF261:
+ 2655 185b 4359424C 		.ascii	"CYBLE_EVT_HTSC_WRITE_CHAR_RESPONSE\000"
+ 2655      455F4556 
+ 2655      545F4854 
+ 2655      53435F57 
+ 2655      52495445 
+ 2656              	.LASF71:
+ 2657 187e 4359424C 		.ascii	"CYBLE_EVT_MAX\000"
+ 2657      455F4556 
+ 2657      545F4D41 
+ 2657      5800
+ 2658              	.LASF35:
+ 2659 188c 4359424C 		.ascii	"CYBLE_EVT_GAPC_SCAN_START_STOP\000"
+ 2659      455F4556 
+ 2659      545F4741 
+ 2659      50435F53 
+ 2659      43414E5F 
+ 2660              	.LASF150:
+ 2661 18ab 4359424C 		.ascii	"CYBLE_EVT_ANSS_NOTIFICATION_ENABLED\000"
+ 2661      455F4556 
+ 2661      545F414E 
+ 2661      53535F4E 
+ 2661      4F544946 
+ 2662              	.LASF49:
+ 2663 18cf 4359424C 		.ascii	"CYBLE_EVT_GATTS_WRITE_REQ\000"
+ 2663      455F4556 
+ 2663      545F4741 
+ 2663      5454535F 
+ 2663      57524954 
+ 2664              	.LASF345:
+ 2665 18e9 696E6974 		.ascii	"initialMeasurementInterval\000"
+ 2665      69616C4D 
+ 2665      65617375 
+ 2665      72656D65 
+ 2665      6E74496E 
+ 2666              	.LASF324:
+ 2667 1904 4359424C 		.ascii	"CYBLE_EVT_UDSC_WRITE_CHAR_RESPONSE\000"
+ 2667      455F4556 
+ 2667      545F5544 
+ 2667      53435F57 
+ 2667      52495445 
+ 2668              	.LASF27:
+ 2669 1927 4359424C 		.ascii	"CYBLE_EVT_GAP_PASSKEY_DISPLAY_REQUEST\000"
+ 2669      455F4556 
+ 2669      545F4741 
+ 2669      505F5041 
+ 2669      53534B45 
+ 2670              	.LASF100:
+ 2671 194d 4359424C 		.ascii	"CYBLE_ERROR_IND_DISABLED\000"
+ 2671      455F4552 
+ 2671      524F525F 
+ 2671      494E445F 
+ 2671      44495341 
+ 2672              	.LASF99:
+ 2673 1966 4359424C 		.ascii	"CYBLE_ERROR_NTF_DISABLED\000"
+ 2673      455F4552 
+ 2673      524F525F 
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 67
+
+
+ 2673      4E54465F 
+ 2673      44495341 
+ 2674              	.LASF46:
+ 2675 197f 4359424C 		.ascii	"CYBLE_EVT_GATTC_READ_RSP\000"
+ 2675      455F4556 
+ 2675      545F4741 
+ 2675      5454435F 
+ 2675      52454144 
+ 2676              	.LASF195:
+ 2677 1998 4359424C 		.ascii	"CYBLE_EVT_CPSC_INDICATION\000"
+ 2677      455F4556 
+ 2677      545F4350 
+ 2677      53435F49 
+ 2677      4E444943 
+ 2678              	.LASF219:
+ 2679 19b2 4359424C 		.ascii	"CYBLE_EVT_DISC_READ_CHAR_RESPONSE\000"
+ 2679      455F4556 
+ 2679      545F4449 
+ 2679      53435F52 
+ 2679      4541445F 
+ 2680              	.LASF63:
+ 2681 19d4 4359424C 		.ascii	"CYBLE_EVT_L2CAP_CBFC_CONN_CNF\000"
+ 2681      455F4556 
+ 2681      545F4C32 
+ 2681      4341505F 
+ 2681      43424643 
+ 2682              	.LASF262:
+ 2683 19f2 4359424C 		.ascii	"CYBLE_EVT_HTSC_READ_DESCR_RESPONSE\000"
+ 2683      455F4556 
+ 2683      545F4854 
+ 2683      53435F52 
+ 2683      4541445F 
+ 2684              	.LASF327:
+ 2685 1a15 4359424C 		.ascii	"CYBLE_DEBUG_EVT_BLESS_INT\000"
+ 2685      455F4445 
+ 2685      4255475F 
+ 2685      4556545F 
+ 2685      424C4553 
+ 2686              	.LASF225:
+ 2687 1a2f 4359424C 		.ascii	"CYBLE_EVT_GLSS_WRITE_CHAR\000"
+ 2687      455F4556 
+ 2687      545F474C 
+ 2687      53535F57 
+ 2687      52495445 
+ 2688              	.LASF177:
+ 2689 1a49 4359424C 		.ascii	"CYBLE_EVT_CGMSS_NOTIFICATION_ENABLED\000"
+ 2689      455F4556 
+ 2689      545F4347 
+ 2689      4D53535F 
+ 2689      4E4F5449 
+ 2690              	.LASF342:
+ 2691 1a6e 6D61696E 		.ascii	"mainTimer\000"
+ 2691      54696D65 
+ 2691      7200
+ 2692              	.LASF247:
+ 2693 1a78 4359424C 		.ascii	"CYBLE_EVT_HRSC_NOTIFICATION\000"
+ 2693      455F4556 
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 68
+
+
+ 2693      545F4852 
+ 2693      53435F4E 
+ 2693      4F544946 
+ 2694              	.LASF293:
+ 2695 1a94 4359424C 		.ascii	"CYBLE_EVT_RSCSS_INDICATION_CONFIRMATION\000"
+ 2695      455F4556 
+ 2695      545F5253 
+ 2695      4353535F 
+ 2695      494E4449 
+ 2696              	.LASF242:
+ 2697 1abc 4359424C 		.ascii	"CYBLE_EVT_HIDSC_READ_DESCR_RESPONSE\000"
+ 2697      455F4556 
+ 2697      545F4849 
+ 2697      4453435F 
+ 2697      52454144 
+ 2698              	.LASF248:
+ 2699 1ae0 4359424C 		.ascii	"CYBLE_EVT_HRSC_READ_CHAR_RESPONSE\000"
+ 2699      455F4556 
+ 2699      545F4852 
+ 2699      53435F52 
+ 2699      4541445F 
+ 2700              	.LASF33:
+ 2701 1b02 4359424C 		.ascii	"CYBLE_EVT_GAP_ENCRYPT_CHANGE\000"
+ 2701      455F4556 
+ 2701      545F4741 
+ 2701      505F454E 
+ 2701      43525950 
+ 2702              	.LASF280:
+ 2703 1b1f 4359424C 		.ascii	"CYBLE_EVT_NDCSC_READ_CHAR_RESPONSE\000"
+ 2703      455F4556 
+ 2703      545F4E44 
+ 2703      4353435F 
+ 2703      52454144 
+ 2704              	.LASF145:
+ 2705 1b42 4359424C 		.ascii	"CYBLE_EVT_GATTC_DESCR_DUPLICATION\000"
+ 2705      455F4556 
+ 2705      545F4741 
+ 2705      5454435F 
+ 2705      44455343 
+ 2706              	.LASF123:
+ 2707 1b64 4359424C 		.ascii	"CYBLE_HTS_CHAR_COUNT\000"
+ 2707      455F4854 
+ 2707      535F4348 
+ 2707      41525F43 
+ 2707      4F554E54 
+ 2708              	.LASF40:
+ 2709 1b79 4359424C 		.ascii	"CYBLE_EVT_GATTS_XCNHG_MTU_REQ\000"
+ 2709      455F4556 
+ 2709      545F4741 
+ 2709      5454535F 
+ 2709      58434E48 
+ 2710              	.LASF330:
+ 2711 1b97 6C6F6343 		.ascii	"locCharIndex\000"
+ 2711      68617249 
+ 2711      6E646578 
+ 2711      00
+ 2712              	.LASF318:
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 69
+
+
+ 2713 1ba4 4359424C 		.ascii	"CYBLE_EVT_UDSS_NOTIFICATION_ENABLED\000"
+ 2713      455F4556 
+ 2713      545F5544 
+ 2713      53535F4E 
+ 2713      4F544946 
+ 2714              	.LASF270:
+ 2715 1bc8 4359424C 		.ascii	"CYBLE_EVT_LNSS_INDICATION_CONFIRMED\000"
+ 2715      455F4556 
+ 2715      545F4C4E 
+ 2715      53535F49 
+ 2715      4E444943 
+ 2716              	.LASF157:
+ 2717 1bec 4359424C 		.ascii	"CYBLE_EVT_ANSC_WRITE_DESCR_RESPONSE\000"
+ 2717      455F4556 
+ 2717      545F414E 
+ 2717      53435F57 
+ 2717      52495445 
+ 2718              	.LASF276:
+ 2719 1c10 4359424C 		.ascii	"CYBLE_EVT_LNSC_READ_CHAR_RESPONSE\000"
+ 2719      455F4556 
+ 2719      545F4C4E 
+ 2719      53435F52 
+ 2719      4541445F 
+ 2720              	.LASF109:
+ 2721 1c32 4359424C 		.ascii	"CYBLE_DIS_MANUFACTURER_NAME\000"
+ 2721      455F4449 
+ 2721      535F4D41 
+ 2721      4E554641 
+ 2721      43545552 
+ 2722              	.LASF222:
+ 2723 1c4e 4359424C 		.ascii	"CYBLE_EVT_GLSS_INDICATION_CONFIRMED\000"
+ 2723      455F4556 
+ 2723      545F474C 
+ 2723      53535F49 
+ 2723      4E444943 
+ 2724              	.LASF136:
+ 2725 1c72 4359424C 		.ascii	"CYBLE_EVT_GATTS_INDICATION_ENABLED\000"
+ 2725      455F4556 
+ 2725      545F4741 
+ 2725      5454535F 
+ 2725      494E4449 
+ 2726              	.LASF7:
+ 2727 1c95 6C6F6E67 		.ascii	"long long unsigned int\000"
+ 2727      206C6F6E 
+ 2727      6720756E 
+ 2727      7369676E 
+ 2727      65642069 
+ 2728              	.LASF343:
+ 2729 1cac 74656D70 		.ascii	"temperatureMeasure\000"
+ 2729      65726174 
+ 2729      7572654D 
+ 2729      65617375 
+ 2729      726500
+ 2730              	.LASF20:
+ 2731 1cbf 4359424C 		.ascii	"CYBLE_EVT_TIMEOUT\000"
+ 2731      455F4556 
+ 2731      545F5449 
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 70
+
+
+ 2731      4D454F55 
+ 2731      5400
+ 2732              	.LASF217:
+ 2733 1cd1 4359424C 		.ascii	"CYBLE_EVT_CTSC_READ_DESCR_RESPONSE\000"
+ 2733      455F4556 
+ 2733      545F4354 
+ 2733      53435F52 
+ 2733      4541445F 
+ 2734              	.LASF102:
+ 2735 1cf4 4359424C 		.ascii	"CYBLE_ERROR_INVALID_STATE\000"
+ 2735      455F4552 
+ 2735      524F525F 
+ 2735      494E5641 
+ 2735      4C49445F 
+ 2736              	.LASF66:
+ 2737 1d0e 4359424C 		.ascii	"CYBLE_EVT_L2CAP_CBFC_DATA_READ\000"
+ 2737      455F4556 
+ 2737      545F4C32 
+ 2737      4341505F 
+ 2737      43424643 
+ 2738              	.LASF130:
+ 2739 1d2d 76616C75 		.ascii	"value\000"
+ 2739      6500
+ 2740              	.LASF194:
+ 2741 1d33 4359424C 		.ascii	"CYBLE_EVT_CPSC_NOTIFICATION\000"
+ 2741      455F4556 
+ 2741      545F4350 
+ 2741      53435F4E 
+ 2741      4F544946 
+ 2742              	.LASF173:
+ 2743 1d4f 4359424C 		.ascii	"CYBLE_EVT_BLSC_WRITE_DESCR_RESPONSE\000"
+ 2743      455F4556 
+ 2743      545F424C 
+ 2743      53435F57 
+ 2743      52495445 
+ 2744              	.LASF120:
+ 2745 1d73 4359424C 		.ascii	"CYBLE_HTS_TEMP_TYPE\000"
+ 2745      455F4854 
+ 2745      535F5445 
+ 2745      4D505F54 
+ 2745      59504500 
+ 2746              	.LASF275:
+ 2747 1d87 4359424C 		.ascii	"CYBLE_EVT_LNSC_NOTIFICATION\000"
+ 2747      455F4556 
+ 2747      545F4C4E 
+ 2747      53435F4E 
+ 2747      4F544946 
+ 2748              	.LASF215:
+ 2749 1da3 4359424C 		.ascii	"CYBLE_EVT_CTSC_NOTIFICATION\000"
+ 2749      455F4556 
+ 2749      545F4354 
+ 2749      53435F4E 
+ 2749      4F544946 
+ 2750              	.LASF221:
+ 2751 1dbf 4359424C 		.ascii	"CYBLE_EVT_GLSS_INDICATION_DISABLED\000"
+ 2751      455F4556 
+ 2751      545F474C 
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 71
+
+
+ 2751      53535F49 
+ 2751      4E444943 
+ 2752              	.LASF143:
+ 2753 1de2 4359424C 		.ascii	"CYBLE_EVT_GATTC_SRVC_DUPLICATION\000"
+ 2753      455F4556 
+ 2753      545F4741 
+ 2753      5454435F 
+ 2753      53525643 
+ 2754              	.LASF333:
+ 2755 1e03 4D656173 		.ascii	"MeasureTemperature\000"
+ 2755      75726554 
+ 2755      656D7065 
+ 2755      72617475 
+ 2755      726500
+ 2756              	.LASF268:
+ 2757 1e16 4359424C 		.ascii	"CYBLE_EVT_LNSS_INDICATION_ENABLED\000"
+ 2757      455F4556 
+ 2757      545F4C4E 
+ 2757      53535F49 
+ 2757      4E444943 
+ 2758              	.LASF212:
+ 2759 1e38 4359424C 		.ascii	"CYBLE_EVT_CSCSC_WRITE_DESCR_RESPONSE\000"
+ 2759      455F4556 
+ 2759      545F4353 
+ 2759      4353435F 
+ 2759      57524954 
+ 2760              	.LASF128:
+ 2761 1e5d 636F6E6E 		.ascii	"connHandle\000"
+ 2761      48616E64 
+ 2761      6C6500
+ 2762              	.LASF159:
+ 2763 1e68 4359424C 		.ascii	"CYBLE_EVT_BASS_NOTIFICATION_DISABLED\000"
+ 2763      455F4556 
+ 2763      545F4241 
+ 2763      53535F4E 
+ 2763      4F544946 
+ 2764              	.LASF186:
+ 2765 1e8d 4359424C 		.ascii	"CYBLE_EVT_CPSS_NOTIFICATION_ENABLED\000"
+ 2765      455F4556 
+ 2765      545F4350 
+ 2765      53535F4E 
+ 2765      4F544946 
+ 2766              	.LASF313:
+ 2767 1eb1 4359424C 		.ascii	"CYBLE_EVT_TPSC_READ_DESCR_RESPONSE\000"
+ 2767      455F4556 
+ 2767      545F5450 
+ 2767      53435F52 
+ 2767      4541445F 
+ 2768              	.LASF44:
+ 2769 1ed4 4359424C 		.ascii	"CYBLE_EVT_GATTC_FIND_INFO_RSP\000"
+ 2769      455F4556 
+ 2769      545F4741 
+ 2769      5454435F 
+ 2769      46494E44 
+ 2770              	.LASF43:
+ 2771 1ef2 4359424C 		.ascii	"CYBLE_EVT_GATTC_READ_BY_TYPE_RSP\000"
+ 2771      455F4556 
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 72
+
+
+ 2771      545F4741 
+ 2771      5454435F 
+ 2771      52454144 
+ 2772              	.LASF282:
+ 2773 1f13 4359424C 		.ascii	"CYBLE_EVT_PASSS_NOTIFICATION_DISABLED\000"
+ 2773      455F4556 
+ 2773      545F5041 
+ 2773      5353535F 
+ 2773      4E4F5449 
+ 2774              	.LASF184:
+ 2775 1f39 4359424C 		.ascii	"CYBLE_EVT_CGMSC_READ_DESCR_RESPONSE\000"
+ 2775      455F4556 
+ 2775      545F4347 
+ 2775      4D53435F 
+ 2775      52454144 
+ 2776              	.LASF240:
+ 2777 1f5d 4359424C 		.ascii	"CYBLE_EVT_HIDSC_READ_CHAR_RESPONSE\000"
+ 2777      455F4556 
+ 2777      545F4849 
+ 2777      4453435F 
+ 2777      52454144 
+ 2778              	.LASF340:
+ 2779 1f80 61706952 		.ascii	"apiResult\000"
+ 2779      6573756C 
+ 2779      7400
+ 2780              	.LASF310:
+ 2781 1f8a 4359424C 		.ascii	"CYBLE_EVT_TPSS_NOTIFICATION_DISABLED\000"
+ 2781      455F4556 
+ 2781      545F5450 
+ 2781      53535F4E 
+ 2781      4F544946 
+ 2782              	.LASF307:
+ 2783 1faf 4359424C 		.ascii	"CYBLE_EVT_SCPSC_READ_DESCR_RESPONSE\000"
+ 2783      455F4556 
+ 2783      545F5343 
+ 2783      5053435F 
+ 2783      52454144 
+ 2784              	.LASF251:
+ 2785 1fd3 4359424C 		.ascii	"CYBLE_EVT_HRSC_WRITE_DESCR_RESPONSE\000"
+ 2785      455F4556 
+ 2785      545F4852 
+ 2785      53435F57 
+ 2785      52495445 
+ 2786              	.LASF273:
+ 2787 1ff7 4359424C 		.ascii	"CYBLE_EVT_LNSS_WRITE_CHAR\000"
+ 2787      455F4556 
+ 2787      545F4C4E 
+ 2787      53535F57 
+ 2787      52495445 
+ 2788              	.LASF335:
+ 2789 2011 74656D70 		.ascii	"temperatureValue\000"
+ 2789      65726174 
+ 2789      75726556 
+ 2789      616C7565 
+ 2789      00
+ 2790              	.LASF50:
+ 2791 2022 4359424C 		.ascii	"CYBLE_EVT_GATTC_WRITE_RSP\000"
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 73
+
+
+ 2791      455F4556 
+ 2791      545F4741 
+ 2791      5454435F 
+ 2791      57524954 
+ 2792              	.LASF228:
+ 2793 203c 4359424C 		.ascii	"CYBLE_EVT_GLSC_READ_CHAR_RESPONSE\000"
+ 2793      455F4556 
+ 2793      545F474C 
+ 2793      53435F52 
+ 2793      4541445F 
+ 2794              	.LASF295:
+ 2795 205e 4359424C 		.ascii	"CYBLE_EVT_RSCSC_NOTIFICATION\000"
+ 2795      455F4556 
+ 2795      545F5253 
+ 2795      4353435F 
+ 2795      4E4F5449 
+ 2796              	.LASF30:
+ 2797 207b 4359424C 		.ascii	"CYBLE_EVT_GAPP_ADVERTISEMENT_START_STOP\000"
+ 2797      455F4556 
+ 2797      545F4741 
+ 2797      50505F41 
+ 2797      44564552 
+ 2798              	.LASF166:
+ 2799 20a3 4359424C 		.ascii	"CYBLE_EVT_BLSS_INDICATION_CONFIRMED\000"
+ 2799      455F4556 
+ 2799      545F424C 
+ 2799      53535F49 
+ 2799      4E444943 
+ 2800              	.LASF183:
+ 2801 20c7 4359424C 		.ascii	"CYBLE_EVT_CGMSC_WRITE_CHAR_RESPONSE\000"
+ 2801      455F4556 
+ 2801      545F4347 
+ 2801      4D53435F 
+ 2801      57524954 
+ 2802              	.LASF9:
+ 2803 20eb 75696E74 		.ascii	"uint8\000"
+ 2803      3800
+ 2804              	.LASF260:
+ 2805 20f1 4359424C 		.ascii	"CYBLE_EVT_HTSC_READ_CHAR_RESPONSE\000"
+ 2805      455F4556 
+ 2805      545F4854 
+ 2805      53435F52 
+ 2805      4541445F 
+ 2806              	.LASF288:
+ 2807 2113 4359424C 		.ascii	"CYBLE_EVT_PASSC_WRITE_DESCR_RESPONSE\000"
+ 2807      455F4556 
+ 2807      545F5041 
+ 2807      5353435F 
+ 2807      57524954 
+ 2808              	.LASF341:
+ 2809 2138 6379426C 		.ascii	"cyBle_connHandle\000"
+ 2809      655F636F 
+ 2809      6E6E4861 
+ 2809      6E646C65 
+ 2809      00
+ 2810              	.LASF2:
+ 2811 2149 73686F72 		.ascii	"short int\000"
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 74
+
+
+ 2811      7420696E 
+ 2811      7400
+ 2812              	.LASF332:
+ 2813 2153 48747343 		.ascii	"HtsCallBack\000"
+ 2813      616C6C42 
+ 2813      61636B00 
+ 2814              	.LASF137:
+ 2815 215f 4359424C 		.ascii	"CYBLE_EVT_GATTS_INDICATION_DISABLED\000"
+ 2815      455F4556 
+ 2815      545F4741 
+ 2815      5454535F 
+ 2815      494E4449 
+ 2816              	.LASF181:
+ 2817 2183 4359424C 		.ascii	"CYBLE_EVT_CGMSC_NOTIFICATION\000"
+ 2817      455F4556 
+ 2817      545F4347 
+ 2817      4D53435F 
+ 2817      4E4F5449 
+ 2818              	.LASF119:
+ 2819 21a0 4359424C 		.ascii	"CYBLE_HTS_TEMP_MEASURE\000"
+ 2819      455F4854 
+ 2819      535F5445 
+ 2819      4D505F4D 
+ 2819      45415355 
+ 2820              	.LASF37:
+ 2821 21b7 4359424C 		.ascii	"CYBLE_EVT_GATTC_ERROR_RSP\000"
+ 2821      455F4556 
+ 2821      545F4741 
+ 2821      5454435F 
+ 2821      4552524F 
+ 2822              	.LASF160:
+ 2823 21d1 4359424C 		.ascii	"CYBLE_EVT_BASC_NOTIFICATION\000"
+ 2823      455F4556 
+ 2823      545F4241 
+ 2823      53435F4E 
+ 2823      4F544946 
+ 2824              	.LASF163:
+ 2825 21ed 4359424C 		.ascii	"CYBLE_EVT_BASC_WRITE_DESCR_RESPONSE\000"
+ 2825      455F4556 
+ 2825      545F4241 
+ 2825      53435F57 
+ 2825      52495445 
+ 2826              	.LASF220:
+ 2827 2211 4359424C 		.ascii	"CYBLE_EVT_GLSS_INDICATION_ENABLED\000"
+ 2827      455F4556 
+ 2827      545F474C 
+ 2827      53535F49 
+ 2827      4E444943 
+ 2828              	.LASF152:
+ 2829 2233 4359424C 		.ascii	"CYBLE_EVT_ANSS_CHAR_WRITE\000"
+ 2829      455F4556 
+ 2829      545F414E 
+ 2829      53535F43 
+ 2829      4841525F 
+ 2830              	.LASF62:
+ 2831 224d 4359424C 		.ascii	"CYBLE_EVT_L2CAP_CBFC_CONN_IND\000"
+ 2831      455F4556 
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 75
+
+
+ 2831      545F4C32 
+ 2831      4341505F 
+ 2831      43424643 
+ 2832              	.LASF53:
+ 2833 226b 4359424C 		.ascii	"CYBLE_EVT_GATTS_EXEC_WRITE_REQ\000"
+ 2833      455F4556 
+ 2833      545F4741 
+ 2833      5454535F 
+ 2833      45584543 
+ 2834              	.LASF24:
+ 2835 228a 4359424C 		.ascii	"CYBLE_EVT_GAPC_SCAN_PROGRESS_RESULT\000"
+ 2835      455F4556 
+ 2835      545F4741 
+ 2835      50435F53 
+ 2835      43414E5F 
+ 2836              	.LASF336:
+ 2837 22ae 74656D70 		.ascii	"temperatureCelsius\000"
+ 2837      65726174 
+ 2837      75726543 
+ 2837      656C7369 
+ 2837      757300
+ 2838              	.LASF315:
+ 2839 22c1 4359424C 		.ascii	"CYBLE_EVT_UDSS_INDICATION_ENABLED\000"
+ 2839      455F4556 
+ 2839      545F5544 
+ 2839      53535F49 
+ 2839      4E444943 
+ 2840              	.LASF81:
+ 2841 22e3 4359424C 		.ascii	"CYBLE_ERROR_GAP_ROLE\000"
+ 2841      455F4552 
+ 2841      524F525F 
+ 2841      4741505F 
+ 2841      524F4C45 
+ 2842              	.LASF254:
+ 2843 22f8 4359424C 		.ascii	"CYBLE_EVT_HTSS_INDICATION_ENABLED\000"
+ 2843      455F4556 
+ 2843      545F4854 
+ 2843      53535F49 
+ 2843      4E444943 
+ 2844              	.LASF325:
+ 2845 231a 4359424C 		.ascii	"CYBLE_EVT_UDSC_READ_DESCR_RESPONSE\000"
+ 2845      455F4556 
+ 2845      545F5544 
+ 2845      53435F52 
+ 2845      4541445F 
+ 2846              	.LASF161:
+ 2847 233d 4359424C 		.ascii	"CYBLE_EVT_BASC_READ_CHAR_RESPONSE\000"
+ 2847      455F4556 
+ 2847      545F4241 
+ 2847      53435F52 
+ 2847      4541445F 
+ 2848              	.LASF227:
+ 2849 235f 4359424C 		.ascii	"CYBLE_EVT_GLSC_NOTIFICATION\000"
+ 2849      455F4556 
+ 2849      545F474C 
+ 2849      53435F4E 
+ 2849      4F544946 
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 76
+
+
+ 2850              	.LASF305:
+ 2851 237b 4359424C 		.ascii	"CYBLE_EVT_SCPSS_SCAN_INT_WIN_CHAR_WRITE\000"
+ 2851      455F4556 
+ 2851      545F5343 
+ 2851      5053535F 
+ 2851      5343414E 
+ 2852              	.LASF12:
+ 2853 23a3 696E7431 		.ascii	"int16\000"
+ 2853      3600
+ 2854              	.LASF78:
+ 2855 23a9 4359424C 		.ascii	"CYBLE_ERROR_NO_CONNECTION\000"
+ 2855      455F4552 
+ 2855      524F525F 
+ 2855      4E4F5F43 
+ 2855      4F4E4E45 
+ 2856              	.LASF103:
+ 2857 23c3 4359424C 		.ascii	"CYBLE_API_RESULT_T\000"
+ 2857      455F4150 
+ 2857      495F5245 
+ 2857      53554C54 
+ 2857      5F5400
+ 2858              	.LASF175:
+ 2859 23d6 4359424C 		.ascii	"CYBLE_EVT_CGMSS_INDICATION_DISABLED\000"
+ 2859      455F4556 
+ 2859      545F4347 
+ 2859      4D53535F 
+ 2859      494E4449 
+ 2860              	.LASF149:
+ 2861 23fa 4359424C 		.ascii	"CYBLE_EVT_GATTC_DISCOVERY_COMPLETE\000"
+ 2861      455F4556 
+ 2861      545F4741 
+ 2861      5454435F 
+ 2861      44495343 
+ 2862              	.LASF179:
+ 2863 241d 4359424C 		.ascii	"CYBLE_EVT_CGMSS_WRITE_CHAR\000"
+ 2863      455F4556 
+ 2863      545F4347 
+ 2863      4D53535F 
+ 2863      57524954 
+ 2864              	.LASF231:
+ 2865 2438 4359424C 		.ascii	"CYBLE_EVT_GLSC_WRITE_DESCR_RESPONSE\000"
+ 2865      455F4556 
+ 2865      545F474C 
+ 2865      53435F57 
+ 2865      52495445 
+ 2866              	.LASF56:
+ 2867 245c 4359424C 		.ascii	"CYBLE_EVT_GATTC_HANDLE_VALUE_IND\000"
+ 2867      455F4556 
+ 2867      545F4741 
+ 2867      5454435F 
+ 2867      48414E44 
+ 2868              	.LASF200:
+ 2869 247d 4359424C 		.ascii	"CYBLE_EVT_CPSC_SCAN_PROGRESS_RESULT\000"
+ 2869      455F4556 
+ 2869      545F4350 
+ 2869      53435F53 
+ 2869      43414E5F 
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 77
+
+
+ 2870              	.LASF299:
+ 2871 24a1 4359424C 		.ascii	"CYBLE_EVT_RSCSC_READ_DESCR_RESPONSE\000"
+ 2871      455F4556 
+ 2871      545F5253 
+ 2871      4353435F 
+ 2871      52454144 
+ 2872              	.LASF84:
+ 2873 24c5 4359424C 		.ascii	"CYBLE_ERROR_SEC_FAILED\000"
+ 2873      455F4552 
+ 2873      524F525F 
+ 2873      5345435F 
+ 2873      4641494C 
+ 2874              	.LASF23:
+ 2875 24dc 4359424C 		.ascii	"CYBLE_EVT_STACK_BUSY_STATUS\000"
+ 2875      455F4556 
+ 2875      545F5354 
+ 2875      41434B5F 
+ 2875      42555359 
+ 2876              	.LASF263:
+ 2877 24f8 4359424C 		.ascii	"CYBLE_EVT_HTSC_WRITE_DESCR_RESPONSE\000"
+ 2877      455F4556 
+ 2877      545F4854 
+ 2877      53435F57 
+ 2877      52495445 
+ 2878              	.LASF36:
+ 2879 251c 4359424C 		.ascii	"CYBLE_EVT_GAP_KEYINFO_EXCHNGE_CMPLT\000"
+ 2879      455F4556 
+ 2879      545F4741 
+ 2879      505F4B45 
+ 2879      59494E46 
+ 2880              	.LASF59:
+ 2881 2540 4359424C 		.ascii	"CYBLE_EVT_L2CAP_CONN_PARAM_UPDATE_REQ\000"
+ 2881      455F4556 
+ 2881      545F4C32 
+ 2881      4341505F 
+ 2881      434F4E4E 
+ 2882              	.LASF178:
+ 2883 2566 4359424C 		.ascii	"CYBLE_EVT_CGMSS_NOTIFICATION_DISABLED\000"
+ 2883      455F4556 
+ 2883      545F4347 
+ 2883      4D53535F 
+ 2883      4E4F5449 
+ 2884              	.LASF97:
+ 2885 258c 4359424C 		.ascii	"CYBLE_CHAR_DISC_DONE\000"
+ 2885      455F4348 
+ 2885      41525F44 
+ 2885      4953435F 
+ 2885      444F4E45 
+ 2886              	.LASF140:
+ 2887 25a1 4359424C 		.ascii	"CYBLE_EVT_GATTC_INCL_DISCOVERY_FAILED\000"
+ 2887      455F4556 
+ 2887      545F4741 
+ 2887      5454435F 
+ 2887      494E434C 
+ 2888              	.LASF3:
+ 2889 25c7 73686F72 		.ascii	"short unsigned int\000"
+ 2889      7420756E 
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 78
+
+
+ 2889      7369676E 
+ 2889      65642069 
+ 2889      6E7400
+ 2890              	.LASF229:
+ 2891 25da 4359424C 		.ascii	"CYBLE_EVT_GLSC_WRITE_CHAR_RESPONSE\000"
+ 2891      455F4556 
+ 2891      545F474C 
+ 2891      53435F57 
+ 2891      52495445 
+ 2892              	.LASF278:
+ 2893 25fd 4359424C 		.ascii	"CYBLE_EVT_LNSC_READ_DESCR_RESPONSE\000"
+ 2893      455F4556 
+ 2893      545F4C4E 
+ 2893      53435F52 
+ 2893      4541445F 
+ 2894              	.LASF13:
+ 2895 2620 696E7433 		.ascii	"int32\000"
+ 2895      3200
+ 2896              	.LASF107:
+ 2897 2626 61637475 		.ascii	"actualLen\000"
+ 2897      616C4C65 
+ 2897      6E00
+ 2898              	.LASF309:
+ 2899 2630 4359424C 		.ascii	"CYBLE_EVT_TPSS_NOTIFICATION_ENABLED\000"
+ 2899      455F4556 
+ 2899      545F5450 
+ 2899      53535F4E 
+ 2899      4F544946 
+ 2900              	.LASF226:
+ 2901 2654 4359424C 		.ascii	"CYBLE_EVT_GLSC_INDICATION\000"
+ 2901      455F4556 
+ 2901      545F474C 
+ 2901      53435F49 
+ 2901      4E444943 
+ 2902              	.LASF192:
+ 2903 266e 4359424C 		.ascii	"CYBLE_EVT_CPSS_BROADCAST_DISABLED\000"
+ 2903      455F4556 
+ 2903      545F4350 
+ 2903      53535F42 
+ 2903      524F4144 
+ 2904              	.LASF105:
+ 2905 2690 61747449 		.ascii	"attId\000"
+ 2905      6400
+ 2906              	.LASF74:
+ 2907 2696 4359424C 		.ascii	"CYBLE_ERROR_INVALID_OPERATION\000"
+ 2907      455F4552 
+ 2907      524F525F 
+ 2907      494E5641 
+ 2907      4C49445F 
+ 2908              	.LASF22:
+ 2909 26b4 4359424C 		.ascii	"CYBLE_EVT_HCI_STATUS\000"
+ 2909      455F4556 
+ 2909      545F4843 
+ 2909      495F5354 
+ 2909      41545553 
+ 2910              	.LASF39:
+ 2911 26c9 4359424C 		.ascii	"CYBLE_EVT_GATT_DISCONNECT_IND\000"
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 79
+
+
+ 2911      455F4556 
+ 2911      545F4741 
+ 2911      54545F44 
+ 2911      4953434F 
+ 2912              	.LASF135:
+ 2913 26e7 4359424C 		.ascii	"CYBLE_KEY_EXCHANGE_INFO_REQUEST_REPLY\000"
+ 2913      455F4B45 
+ 2913      595F4558 
+ 2913      4348414E 
+ 2913      47455F49 
+ 2914              	.LASF69:
+ 2915 270d 4359424C 		.ascii	"CYBLE_EVT_L2CAP_CBFC_DATA_WRITE_IND\000"
+ 2915      455F4556 
+ 2915      545F4C32 
+ 2915      4341505F 
+ 2915      43424643 
+ 2916              	.LASF133:
+ 2917 2731 4359424C 		.ascii	"CYBLE_PASSKEY_ENTRY_REQUEST_REPLY\000"
+ 2917      455F5041 
+ 2917      53534B45 
+ 2917      595F454E 
+ 2917      5452595F 
+ 2918              	.LASF153:
+ 2919 2753 4359424C 		.ascii	"CYBLE_EVT_ANSC_NOTIFICATION\000"
+ 2919      455F4556 
+ 2919      545F414E 
+ 2919      53435F4E 
+ 2919      4F544946 
+ 2920              	.LASF32:
+ 2921 276f 4359424C 		.ascii	"CYBLE_EVT_GAP_DEVICE_DISCONNECTED\000"
+ 2921      455F4556 
+ 2921      545F4741 
+ 2921      505F4445 
+ 2921      56494345 
+ 2922              	.LASF234:
+ 2923 2791 4359424C 		.ascii	"CYBLE_EVT_HIDSS_BOOT_MODE_ENTER\000"
+ 2923      455F4556 
+ 2923      545F4849 
+ 2923      4453535F 
+ 2923      424F4F54 
+ 2924              	.LASF57:
+ 2925 27b1 4359424C 		.ascii	"CYBLE_EVT_GATTS_HANDLE_VALUE_CNF\000"
+ 2925      455F4556 
+ 2925      545F4741 
+ 2925      5454535F 
+ 2925      48414E44 
+ 2926              	.LASF211:
+ 2927 27d2 4359424C 		.ascii	"CYBLE_EVT_CSCSC_READ_DESCR_RESPONSE\000"
+ 2927      455F4556 
+ 2927      545F4353 
+ 2927      4353435F 
+ 2927      52454144 
+ 2928              	.LASF10:
+ 2929 27f6 75696E74 		.ascii	"uint16\000"
+ 2929      313600
+ 2930              	.LASF82:
+ 2931 27fd 4359424C 		.ascii	"CYBLE_ERROR_TX_POWER_READ\000"
+ARM GAS  C:\Users\Zachary\AppData\Local\Temp\ccIGL81O.s 			page 80
+
+
+ 2931      455F4552 
+ 2931      524F525F 
+ 2931      54585F50 
+ 2931      4F574552 
+ 2932              	.LASF289:
+ 2933 2817 4359424C 		.ascii	"CYBLE_EVT_RSCSS_NOTIFICATION_ENABLED\000"
+ 2933      455F4556 
+ 2933      545F5253 
+ 2933      4353535F 
+ 2933      4E4F5449 
+ 2934              	.LASF151:
+ 2935 283c 4359424C 		.ascii	"CYBLE_EVT_ANSS_NOTIFICATION_DISABLED\000"
+ 2935      455F4556 
+ 2935      545F414E 
+ 2935      53535F4E 
+ 2935      4F544946 
+ 2936              	.LASF259:
+ 2937 2861 4359424C 		.ascii	"CYBLE_EVT_HTSC_INDICATION\000"
+ 2937      455F4556 
+ 2937      545F4854 
+ 2937      53435F49 
+ 2937      4E444943 
+ 2938              	.LASF232:
+ 2939 287b 4359424C 		.ascii	"CYBLE_EVT_HIDSS_NOTIFICATION_ENABLED\000"
+ 2939      455F4556 
+ 2939      545F4849 
+ 2939      4453535F 
+ 2939      4E4F5449 
+ 2940              	.LASF256:
+ 2941 28a0 4359424C 		.ascii	"CYBLE_EVT_HTSS_INDICATION_CONFIRMED\000"
+ 2941      455F4556 
+ 2941      545F4854 
+ 2941      53535F49 
+ 2941      4E444943 
+ 2942              	.LASF246:
+ 2943 28c4 4359424C 		.ascii	"CYBLE_EVT_HRSS_NOTIFICATION_DISABLED\000"
+ 2943      455F4556 
+ 2943      545F4852 
+ 2943      53535F4E 
+ 2943      4F544946 
+ 2944              		.ident	"GCC: (GNU Tools for ARM Embedded Processors) 4.8.4 20140526 (release) [ARM/embedded-4_8-br

@@ -1,0 +1,11 @@
+--------------- Build Started: 04/07/2017 00:24:29 Project: Design01, Configuration: ARM GCC 4.8.4 Debug ---------------
+The code generation step is up to date.
+arm-none-eabi-gcc.exe -mcpu=cortex-m0 -mthumb -Wno-main -I. -I.\Generated_Source\PSoC4 -Wa,-alh=.\CortexM0\ARM_GCC_484\Debug/main.lst -g -D DEBUG -Wall -ffunction-sections -O0 -c .\main.c -o .\CortexM0\ARM_GCC_484\Debug\main.o
+arm-none-eabi-ar.exe -rs .\CortexM0\ARM_GCC_484\Debug\Design01.a .\CortexM0\ARM_GCC_484\Debug\cyfitter_cfg.o .\CortexM0\ARM_GCC_484\Debug\Vin_1.o .\CortexM0\ARM_GCC_484\Debug\CyBootAsmGnu.o .\CortexM0\ARM_GCC_484\Debug\CyFlash.o .\CortexM0\ARM_GCC_484\Debug\CyLib.o .\CortexM0\ARM_GCC_484\Debug\cyPm.o .\CortexM0\ARM_GCC_484\Debug\cyutils.o .\CortexM0\ARM_GCC_484\Debug\ADC.o .\CortexM0\ARM_GCC_484\Debug\ADC_PM.o .\CortexM0\ARM_GCC_484\Debug\ADC_INT.o .\CortexM0\ARM_GCC_484\Debug\ADC_IRQ.o .\CortexM0\ARM_GCC_484\Debug\ADC_intClock.o
+arm-none-eabi-ar.exe: creating .\CortexM0\ARM_GCC_484\Debug\Design01.a
+arm-none-eabi-gcc.exe -Wl,--start-group -o .\CortexM0\ARM_GCC_484\Debug\Design01.elf .\CortexM0\ARM_GCC_484\Debug\main.o .\CortexM0\ARM_GCC_484\Debug\cymetadata.o .\CortexM0\ARM_GCC_484\Debug\Cm0Start.o .\CortexM0\ARM_GCC_484\Debug\Design01.a "C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\psoc\content\cycomponentlibrary\CyComponentLibrary.cylib\CortexM0\ARM_GCC_484\Debug\CyComponentLibrary.a" -mthumb -march=armv6-m -Wl,-Map,.\CortexM0\ARM_GCC_484\Debug/Design01.map -T .\Generated_Source\PSoC4\cm0gcc.ld -g -specs=nano.specs "-u _printf_float" "" -Wl,--gc-sections -Wl,--end-group
+cyelftool.exe -C "C:\Users\Zachary\Desktop\embedded\Ozturk Lab - 5 - Rev 1\Design01\Design01.cydsn\CortexM0\ARM_GCC_484\Debug\Design01.elf" --flash_size 131072 --flash_row_size 128
+cyelftool.exe -S "C:\Users\Zachary\Desktop\embedded\Ozturk Lab - 5 - Rev 1\Design01\Design01.cydsn\CortexM0\ARM_GCC_484\Debug\Design01.elf"
+Flash used: 7520 of 131072 bytes (5.7 %).
+SRAM used: 2556 of 16384 bytes (15.6 %). Stack: 2048 bytes. Heap: 128 bytes.
+--------------- Build Succeeded: 04/07/2017 00:24:31 ---------------

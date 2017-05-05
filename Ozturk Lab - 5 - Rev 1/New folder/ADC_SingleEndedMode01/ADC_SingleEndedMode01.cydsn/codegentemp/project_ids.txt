@@ -1,0 +1,6 @@
+C:\Users\Zachary\Desktop\embedded\Ozturk Lab - 5 - Rev 1\New folder\ADC_SingleEndedMode01\ADC_SingleEndedMode01.cydsn\ADC_SingleEndedMode01.cyprj|4850e88b-f342-48fe-a592-f17d94825149
+C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\psoc\content\default\CyAnnotationLibrary\CyAnnotationLibrary.cylib\CyAnnotationLibrary.cyprj|1a74abeb-0f99-4c91-aceb-e975f64386e0
+C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\psoc\content\cycomponentlibraryupdates\CyComponentLibraryUpdates.cylib\CyComponentLibraryUpdates.cyprj|0d823fa8-ca6d-4c40-9cf5-d7b3c9cf9393
+C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\psoc\content\cycomponentlibrary\CyComponentLibrary.cylib\CyComponentLibrary.cyprj|7fef2f3a-0982-4691-af31-62dafe84a9aa
+C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\psoc\content\cyprimitives\CyPrimitives.cylib\CyPrimitives.cyprj|e672e765-de92-4305-adba-0ff8caccedd7
+C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\psoc\content\default\CyReferenceLibrary\CyReferenceLibrary.cylib\CyReferenceLibrary.cyprj|db81970a-8cb8-4c91-951a-2952cc669c3f

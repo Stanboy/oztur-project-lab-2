@@ -1,0 +1,93 @@
+/*******************************************************************************
+* File Name: Ozturk.h  
+* Version 2.10
+*
+* Description:
+*  This file containts Control Register function prototypes and register defines
+*
+* Note:
+*
+********************************************************************************
+* Copyright 2008-2014, Cypress Semiconductor Corporation.  All rights reserved.
+* You may use this file only in accordance with the license, terms, conditions, 
+* disclaimers, and limitations in the end user license agreement accompanying 
+* the software package with which this file was provided.
+*******************************************************************************/
+
+#if !defined(CY_PINS_Ozturk_H) /* Pins Ozturk_H */
+#define CY_PINS_Ozturk_H
+
+#include "cytypes.h"
+#include "cyfitter.h"
+#include "Ozturk_aliases.h"
+
+
+/***************************************
+*        Function Prototypes             
+***************************************/    
+
+void    Ozturk_Write(uint8 value) ;
+void    Ozturk_SetDriveMode(uint8 mode) ;
+uint8   Ozturk_ReadDataReg(void) ;
+uint8   Ozturk_Read(void) ;
+uint8   Ozturk_ClearInterrupt(void) ;
+
+
+/***************************************
+*           API Constants        
+***************************************/
+
+/* Drive Modes */
+#define Ozturk_DRIVE_MODE_BITS        (3)
+#define Ozturk_DRIVE_MODE_IND_MASK    (0xFFFFFFFFu >> (32 - Ozturk_DRIVE_MODE_BITS))
+
+#define Ozturk_DM_ALG_HIZ         (0x00u)
+#define Ozturk_DM_DIG_HIZ         (0x01u)
+#define Ozturk_DM_RES_UP          (0x02u)
+#define Ozturk_DM_RES_DWN         (0x03u)
+#define Ozturk_DM_OD_LO           (0x04u)
+#define Ozturk_DM_OD_HI           (0x05u)
+#define Ozturk_DM_STRONG          (0x06u)
+#define Ozturk_DM_RES_UPDWN       (0x07u)
+
+/* Digital Port Constants */
+#define Ozturk_MASK               Ozturk__MASK
+#define Ozturk_SHIFT              Ozturk__SHIFT
+#define Ozturk_WIDTH              1u
+
+
+/***************************************
+*             Registers        
+***************************************/
+
+/* Main Port Registers */
+/* Pin State */
+#define Ozturk_PS                     (* (reg32 *) Ozturk__PS)
+/* Port Configuration */
+#define Ozturk_PC                     (* (reg32 *) Ozturk__PC)
+/* Data Register */
+#define Ozturk_DR                     (* (reg32 *) Ozturk__DR)
+/* Input Buffer Disable Override */
+#define Ozturk_INP_DIS                (* (reg32 *) Ozturk__PC2)
+
+
+#if defined(Ozturk__INTSTAT)  /* Interrupt Registers */
+
+    #define Ozturk_INTSTAT                (* (reg32 *) Ozturk__INTSTAT)
+
+#endif /* Interrupt Registers */
+
+
+/***************************************
+* The following code is DEPRECATED and 
+* must not be used.
+***************************************/
+
+#define Ozturk_DRIVE_MODE_SHIFT       (0x00u)
+#define Ozturk_DRIVE_MODE_MASK        (0x07u << Ozturk_DRIVE_MODE_SHIFT)
+
+
+#endif /* End Pins Ozturk_H */
+
+
+/* [] END OF FILE */

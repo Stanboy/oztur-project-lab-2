@@ -1,0 +1,78 @@
+C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/CortexM0/ARM_GCC_484/Debug/ADC.o : C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/ADC.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/CyLib.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cydevice_trm.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cyfitter.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cytypes.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/ADC.c 
+
+C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/ADC.h : 
+
+C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/CyLib.h : 
+
+C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cydevice_trm.h : 
+
+C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cyfitter.h : 
+
+C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cytypes.h : 
+
+C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/ADC.c : 
+
+C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/CortexM0/ARM_GCC_484/Debug/ADC_INT.o : C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/ADC.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/CyLib.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cydevice_trm.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cyfitter.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cytypes.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/ADC_INT.c 
+
+C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/ADC_INT.c : 
+
+C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/CortexM0/ARM_GCC_484/Debug/ADC_IRQ.o : C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/ADC_IRQ.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/CyLib.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cydevice_trm.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cyfitter.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cytypes.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/ADC_IRQ.c 
+
+C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/ADC_IRQ.h : 
+
+C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/ADC_IRQ.c : 
+
+C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/CortexM0/ARM_GCC_484/Debug/ADC_PM.o : C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/ADC.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/CyLib.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cydevice_trm.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cyfitter.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cytypes.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/ADC_PM.c 
+
+C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/ADC_PM.c : 
+
+C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/CortexM0/ARM_GCC_484/Debug/ADC_intClock.o : C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/ADC_intClock.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cydevice_trm.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cyfitter.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cytypes.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/ADC_intClock.c 
+
+C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/ADC_intClock.h : 
+
+C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/ADC_intClock.c : 
+
+C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/CortexM0/ARM_GCC_484/Debug/Cm0Start.o : C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/CyLib.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cydevice_trm.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cyfitter.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cyfitter_cfg.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cytypes.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/Cm0Start.c 
+
+C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cyfitter_cfg.h : 
+
+C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/Cm0Start.c : 
+
+C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/CortexM0/ARM_GCC_484/Debug/CyFlash.o : C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/CyFlash.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/CyLib.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cydevice_trm.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cyfitter.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cytypes.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/CyFlash.c 
+
+C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/CyFlash.h : 
+
+C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/CyFlash.c : 
+
+C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/CortexM0/ARM_GCC_484/Debug/CyLib.o : C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/CyLib.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cydevice_trm.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cyfitter.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cytypes.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/CyLib.c 
+
+C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/CyLib.c : 
+
+C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/CortexM0/ARM_GCC_484/Debug/Vin_1.o : C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/Vin_1.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/Vin_1_aliases.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cydevice_trm.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cyfitter.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cypins.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cytypes.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/Vin_1.c 
+
+C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/Vin_1.h : 
+
+C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/Vin_1_aliases.h : 
+
+C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cypins.h : 
+
+C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/Vin_1.c : 
+
+C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/CortexM0/ARM_GCC_484/Debug/cyPm.o : C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/CyLib.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cyPm.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cydevice_trm.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cyfitter.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cytypes.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cyPm.c 
+
+C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cyPm.h : 
+
+C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cyPm.c : 
+
+C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/CortexM0/ARM_GCC_484/Debug/cyfitter_cfg.o : C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/CyLib.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cydevice_trm.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cyfitter.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cyfitter_cfg.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cytypes.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cyfitter_cfg.c 
+
+C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cyfitter_cfg.c : 
+
+C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/CortexM0/ARM_GCC_484/Debug/cymetadata.o : C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cydevice_trm.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cyfitter.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cytypes.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cymetadata.c 
+
+C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cymetadata.c : 
+
+C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/CortexM0/ARM_GCC_484/Debug/cyutils.o : C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cydevice_trm.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cyfitter.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cytypes.h C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cyutils.c 
+
+C:/Users/Zachary/Desktop/embedded/Ozturk\ Lab\ -\ 5\ -\ Rev\ 1/Design01/Design01.cydsn/Generated_Source/PSoC4/cyutils.c : 
+

@@ -1,0 +1,394 @@
+Loading plugins phase: Elapsed time ==> 0s.359ms
+Initializing data phase: Elapsed time ==> 0s.000ms
+<CYPRESSTAG name="CyDsfit arguments...">
+cydsfit arguments: -.fdsnotice -.fdswarpdepfile=warp_dependencies.txt -.fdselabdepfile=elab_dependencies.txt -.fdsbldfile=generated_files.txt -p C:\Users\Zachary\Desktop\embedded\Ozturk Lab - 5 - Rev 1\Electronic Scale\Electronic Scale.cydsn\Electronic Scale.cyprj -d CY8C4247LQI-BL483 -s C:\Users\Zachary\Desktop\embedded\Ozturk Lab - 5 - Rev 1\Electronic Scale\Electronic Scale.cydsn\Generated_Source\PSoC4 -- -yv2 -q10 -ygs -o2 -v3 -.fftcfgtype=LE</CYPRESSTAG>
+<CYPRESSTAG name="Design elaboration results...">
+ADD: sdb.M0065: information: Analog terminal "ADC.vinPlus1" on TopDesign is unconnected.
+ * C:\Users\Zachary\Desktop\embedded\Ozturk Lab - 5 - Rev 1\Electronic Scale\Electronic Scale.cydsn\TopDesign\TopDesign.cysch (Signal: Net_240)
+ * C:\Users\Zachary\Desktop\embedded\Ozturk Lab - 5 - Rev 1\Electronic Scale\Electronic Scale.cydsn\TopDesign\TopDesign.cysch (Shape_1.34)
+
+ADD: sdb.M0065: information: Analog terminal "ADC.vinPlus0" on TopDesign is unconnected.
+ * C:\Users\Zachary\Desktop\embedded\Ozturk Lab - 5 - Rev 1\Electronic Scale\Electronic Scale.cydsn\TopDesign\TopDesign.cysch (Signal: Net_239)
+ * C:\Users\Zachary\Desktop\embedded\Ozturk Lab - 5 - Rev 1\Electronic Scale\Electronic Scale.cydsn\TopDesign\TopDesign.cysch (Shape_1.32)
+
+ADD: sdb.M0065: information: Analog terminal "ADC.vinMinus1" on TopDesign is unconnected.
+ * C:\Users\Zachary\Desktop\embedded\Ozturk Lab - 5 - Rev 1\Electronic Scale\Electronic Scale.cydsn\TopDesign\TopDesign.cysch (Signal: Net_241)
+ * C:\Users\Zachary\Desktop\embedded\Ozturk Lab - 5 - Rev 1\Electronic Scale\Electronic Scale.cydsn\TopDesign\TopDesign.cysch (Shape_1.35)
+
+ADD: sdb.M0065: information: Analog terminal "ADC.vinPlus2" on TopDesign is unconnected.
+ * C:\Users\Zachary\Desktop\embedded\Ozturk Lab - 5 - Rev 1\Electronic Scale\Electronic Scale.cydsn\TopDesign\TopDesign.cysch (Signal: Net_242)
+ * C:\Users\Zachary\Desktop\embedded\Ozturk Lab - 5 - Rev 1\Electronic Scale\Electronic Scale.cydsn\TopDesign\TopDesign.cysch (Shape_1.37)
+
+ADD: sdb.M0065: information: Analog terminal "ADC.vinMinus2" on TopDesign is unconnected.
+ * C:\Users\Zachary\Desktop\embedded\Ozturk Lab - 5 - Rev 1\Electronic Scale\Electronic Scale.cydsn\TopDesign\TopDesign.cysch (Signal: Net_243)
+ * C:\Users\Zachary\Desktop\embedded\Ozturk Lab - 5 - Rev 1\Electronic Scale\Electronic Scale.cydsn\TopDesign\TopDesign.cysch (Shape_1.41)
+
+ADD: sdb.M0065: information: Analog terminal "ADC.vinPlus3" on TopDesign is unconnected.
+ * C:\Users\Zachary\Desktop\embedded\Ozturk Lab - 5 - Rev 1\Electronic Scale\Electronic Scale.cydsn\TopDesign\TopDesign.cysch (Signal: Net_244)
+ * C:\Users\Zachary\Desktop\embedded\Ozturk Lab - 5 - Rev 1\Electronic Scale\Electronic Scale.cydsn\TopDesign\TopDesign.cysch (Shape_1.44)
+
+ADD: sdb.M0065: information: Analog terminal "ADC.vinMinus3" on TopDesign is unconnected.
+ * C:\Users\Zachary\Desktop\embedded\Ozturk Lab - 5 - Rev 1\Electronic Scale\Electronic Scale.cydsn\TopDesign\TopDesign.cysch (Signal: Net_245)
+ * C:\Users\Zachary\Desktop\embedded\Ozturk Lab - 5 - Rev 1\Electronic Scale\Electronic Scale.cydsn\TopDesign\TopDesign.cysch (Shape_1.45)
+
+</CYPRESSTAG>
+Elaboration phase: Elapsed time ==> 4s.479ms
+<CYPRESSTAG name="HDL generation results...">
+</CYPRESSTAG>
+HDL generation phase: Elapsed time ==> 0s.109ms
+<CYPRESSTAG name="Synthesis results...">
+
+     | | | | | | |
+   _________________
+  -|               |-
+  -|               |-
+  -|               |-
+  -|    CYPRESS    |-
+  -|               |-
+  -|               |-   Warp Verilog Synthesis Compiler: Version 6.3 IR 41
+  -|               |-   Copyright (C) 1991-2001 Cypress Semiconductor
+   |_______________|
+     | | | | | | |
+
+======================================================================
+Compiling:  Electronic Scale.v
+Program  :   C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\warp\bin/warp.exe
+Options  :    -yv2 -q10 -ygs -o2 -v3 -.fftcfgtype=LE -ya -.fftprj=C:\Users\Zachary\Desktop\embedded\Ozturk Lab - 5 - Rev 1\Electronic Scale\Electronic Scale.cydsn\Electronic Scale.cyprj -dcpsoc3 Electronic Scale.v -verilog
+======================================================================
+
+======================================================================
+Compiling:  Electronic Scale.v
+Program  :   C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\warp\bin/warp.exe
+Options  :    -yv2 -q10 -ygs -o2 -v3 -.fftcfgtype=LE -ya -.fftprj=C:\Users\Zachary\Desktop\embedded\Ozturk Lab - 5 - Rev 1\Electronic Scale\Electronic Scale.cydsn\Electronic Scale.cyprj -dcpsoc3 Electronic Scale.v -verilog
+======================================================================
+
+======================================================================
+Compiling:  Electronic Scale.v
+Program  :   vlogfe
+Options  :    -yv2 -q10 -ygs -o2 -v3 -.fftcfgtype=LE -ya -.fftprj=C:\Users\Zachary\Desktop\embedded\Ozturk Lab - 5 - Rev 1\Electronic Scale\Electronic Scale.cydsn\Electronic Scale.cyprj -dcpsoc3 -verilog Electronic Scale.v
+======================================================================
+
+vlogfe V6.3 IR 41:  Verilog parser
+Thu Apr 06 23:05:36 2017
+
+
+======================================================================
+Compiling:  Electronic Scale.v
+Program  :   vpp
+Options  :    -yv2 -q10 Electronic Scale.v
+======================================================================
+
+vpp V6.3 IR 41:  Verilog Pre-Processor
+Thu Apr 06 23:05:36 2017
+
+Flattening file 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\warp\..\psoc\content\cyprimitives\CyPrimitives.cylib\ZeroTerminal\ZeroTerminal.v'
+Flattening file 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\warp\..\psoc\content\cyprimitives\CyPrimitives.cylib\or_v1_0\or_v1_0.v'
+Flattening file 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\warp\..\psoc\content\cyprimitives\CyPrimitives.cylib\cy_analog_virtualmux_v1_0\cy_analog_virtualmux_v1_0.v'
+Flattening file 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\warp\..\psoc\content\cycomponentlibrary\CyComponentLibrary.cylib\Bus_Connect_v2_10\Bus_Connect_v2_10.v'
+Flattening file 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\warp\lib\common\cypress.v'
+Flattening file 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\warp\lib\common\cy_psoc3_inc.v'
+Flattening file 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\warp\..\psoc\content\cyprimitives\CyPrimitives.cylib\cy_virtualmux_v1_0\cy_virtualmux_v1_0.v'
+Flattening file 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\warp\..\psoc\content\cyprimitives\CyPrimitives.cylib\cy_constant_v1_0\cy_constant_v1_0.v'
+
+vpp:  No errors.
+
+Library 'work' => directory 'lcpsoc3'
+General_symbol_table
+General_symbol_table
+Linking 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\warp\lib\common\std.vhd'.
+Linking 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\warp\lib\common\cypress.vhd'.
+Linking 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\warp\lib\common\work\cypress.vif'.
+Linking 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\warp\lib\ieee\work\stdlogic.vif'.
+Linking 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\warp\lib\common\stdlogic\lpmpkg.vif'.
+Linking 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\warp\lib\common\stdlogic\rtlpkg.vif'.
+Linking 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\warp\lib\common\stdlogic\mod_cnst.vif'.
+Linking 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\warp\lib\common\stdlogic\mod_mthv.vif'.
+Linking 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\warp\lib\common\stdlogic\mod_genv.vif'.
+Using control file 'Electronic Scale.ctl'.
+
+vlogfe:  No errors.
+
+
+======================================================================
+Compiling:  Electronic Scale.v
+Program  :   tovif
+Options  :    -yv2 -q10 -ygs -o2 -v3 -.fftcfgtype=LE -ya -.fftprj=C:\Users\Zachary\Desktop\embedded\Ozturk Lab - 5 - Rev 1\Electronic Scale\Electronic Scale.cydsn\Electronic Scale.cyprj -dcpsoc3 -verilog Electronic Scale.v
+======================================================================
+
+tovif V6.3 IR 41:  High-level synthesis
+Thu Apr 06 23:05:36 2017
+
+Linking 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\warp\lib\common\std.vhd'.
+Linking 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\warp\lib\common\cypress.vhd'.
+Linking 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\warp\lib\common\work\cypress.vif'.
+Linking 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\warp\lib\ieee\work\stdlogic.vif'.
+Linking 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\warp\lib\common\stdlogic\lpmpkg.vif'.
+Linking 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\warp\lib\common\stdlogic\rtlpkg.vif'.
+Linking 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\warp\lib\common\stdlogic\mod_cnst.vif'.
+Linking 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\warp\lib\common\stdlogic\mod_mthv.vif'.
+Linking 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\warp\lib\common\stdlogic\mod_genv.vif'.
+Linking 'C:\Users\Zachary\Desktop\embedded\Ozturk Lab - 5 - Rev 1\Electronic Scale\Electronic Scale.cydsn\codegentemp\Electronic Scale.ctl'.
+Linking 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\psoc\content\cyprimitives\CyPrimitives.cylib\ZeroTerminal\ZeroTerminal.v'.
+Linking 'C:\Users\Zachary\Desktop\embedded\Ozturk Lab - 5 - Rev 1\Electronic Scale\Electronic Scale.cydsn\codegentemp\Electronic Scale.v'.
+Linking 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\psoc\content\cyprimitives\CyPrimitives.cylib\or_v1_0\or_v1_0.v'.
+Linking 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\psoc\content\cyprimitives\CyPrimitives.cylib\cy_analog_virtualmux_v1_0\cy_analog_virtualmux_v1_0.v'.
+Linking 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\psoc\content\cycomponentlibrary\CyComponentLibrary.cylib\Bus_Connect_v2_10\Bus_Connect_v2_10.v'.
+Linking 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\warp\lib\common\cypress.v'.
+Linking 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\warp\lib\common\cy_psoc3_inc.v'.
+Linking 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\psoc\content\cyprimitives\CyPrimitives.cylib\cy_virtualmux_v1_0\cy_virtualmux_v1_0.v'.
+Linking 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\psoc\content\cyprimitives\CyPrimitives.cylib\cy_constant_v1_0\cy_constant_v1_0.v'.
+
+tovif:  No errors.
+
+
+======================================================================
+Compiling:  Electronic Scale.v
+Program  :   topld
+Options  :    -yv2 -q10 -ygs -o2 -v3 -.fftcfgtype=LE -ya -.fftprj=C:\Users\Zachary\Desktop\embedded\Ozturk Lab - 5 - Rev 1\Electronic Scale\Electronic Scale.cydsn\Electronic Scale.cyprj -dcpsoc3 -verilog Electronic Scale.v
+======================================================================
+
+topld V6.3 IR 41:  Synthesis and optimization
+Thu Apr 06 23:05:36 2017
+
+Linking 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\warp\lib\common\std.vhd'.
+Linking 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\warp\lib\common\cypress.vhd'.
+Linking 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\warp\lib\common\work\cypress.vif'.
+Linking 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\warp\lib\ieee\work\stdlogic.vif'.
+Linking 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\warp\lib\common\stdlogic\lpmpkg.vif'.
+Linking 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\warp\lib\common\stdlogic\rtlpkg.vif'.
+Linking 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\warp\lib\common\stdlogic\mod_cnst.vif'.
+Linking 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\warp\lib\common\stdlogic\mod_mthv.vif'.
+Linking 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\warp\lib\common\stdlogic\mod_genv.vif'.
+Linking 'C:\Users\Zachary\Desktop\embedded\Ozturk Lab - 5 - Rev 1\Electronic Scale\Electronic Scale.cydsn\codegentemp\Electronic Scale.ctl'.
+Linking 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\psoc\content\cyprimitives\CyPrimitives.cylib\ZeroTerminal\ZeroTerminal.v'.
+Linking 'C:\Users\Zachary\Desktop\embedded\Ozturk Lab - 5 - Rev 1\Electronic Scale\Electronic Scale.cydsn\codegentemp\Electronic Scale.v'.
+Linking 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\psoc\content\cyprimitives\CyPrimitives.cylib\or_v1_0\or_v1_0.v'.
+Linking 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\psoc\content\cyprimitives\CyPrimitives.cylib\cy_analog_virtualmux_v1_0\cy_analog_virtualmux_v1_0.v'.
+Linking 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\psoc\content\cycomponentlibrary\CyComponentLibrary.cylib\Bus_Connect_v2_10\Bus_Connect_v2_10.v'.
+Linking 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\warp\lib\common\cypress.v'.
+Linking 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\warp\lib\common\cy_psoc3_inc.v'.
+Linking 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\psoc\content\cyprimitives\CyPrimitives.cylib\cy_virtualmux_v1_0\cy_virtualmux_v1_0.v'.
+Linking 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\psoc\content\cyprimitives\CyPrimitives.cylib\cy_constant_v1_0\cy_constant_v1_0.v'.
+Linking 'C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\warp\lib\lcpsoc3\stdlogic\cpsoc3.vif'.
+
+----------------------------------------------------------
+Detecting unused logic.
+----------------------------------------------------------
+    User names
+	\ADC:Net_3125\
+	\ADC:Net_3126\
+	Net_27
+	\BLE_1:Net_55\
+
+
+Deleted 4 User equations/components.
+Deleted 0 Synthesized equations/components.
+
+------------------------------------------------------
+Alias Detection
+------------------------------------------------------
+Aliasing \ADC:Net_3106\ to \ADC:Net_3107\
+Aliasing \ADC:Net_3105\ to \ADC:Net_3107\
+Aliasing \ADC:Net_3104\ to \ADC:Net_3107\
+Aliasing \ADC:Net_3103\ to \ADC:Net_3107\
+Aliasing \ADC:Net_3207_1\ to \ADC:Net_3107\
+Aliasing \ADC:Net_3207_0\ to \ADC:Net_3107\
+Aliasing \ADC:Net_3235\ to \ADC:Net_3107\
+Aliasing zero to \ADC:Net_3107\
+Aliasing one to tmpOE__Vin_1_net_0
+Removing Lhs of wire \ADC:Net_3106\[79] = \ADC:Net_3107\[78]
+Removing Lhs of wire \ADC:Net_3105\[80] = \ADC:Net_3107\[78]
+Removing Lhs of wire \ADC:Net_3104\[81] = \ADC:Net_3107\[78]
+Removing Lhs of wire \ADC:Net_3103\[82] = \ADC:Net_3107\[78]
+Removing Lhs of wire \ADC:Net_17\[131] = \ADC:Net_1845\[2]
+Removing Lhs of wire \ADC:Net_3207_1\[153] = \ADC:Net_3107\[78]
+Removing Lhs of wire \ADC:Net_3207_0\[154] = \ADC:Net_3107\[78]
+Removing Lhs of wire \ADC:Net_3235\[155] = \ADC:Net_3107\[78]
+Removing Rhs of wire zero[234] = \ADC:Net_3107\[78]
+Removing Lhs of wire one[238] = tmpOE__Vin_1_net_0[233]
+
+------------------------------------------------------
+Aliased 0 equations, 10 wires.
+------------------------------------------------------
+
+----------------------------------------------------------
+Circuit simplification
+----------------------------------------------------------
+
+Substituting virtuals - pass 1:
+
+
+----------------------------------------------------------
+Circuit simplification results:
+
+	Expanded 0 signals.
+	Turned 0 signals into soft nodes.
+	Maximum default expansion cost was set at 3.
+----------------------------------------------------------
+
+topld:  No errors.
+
+CYPRESS_DIR    : C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\warp
+Warp Program   : C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\warp\bin/warp.exe
+Warp Arguments : -yv2 -q10 -ygs -o2 -v3 -.fftcfgtype=LE -ya "-.fftprj=C:\Users\Zachary\Desktop\embedded\Ozturk Lab - 5 - Rev 1\Electronic Scale\Electronic Scale.cydsn\Electronic Scale.cyprj" -dcpsoc3 "Electronic Scale.v" -verilog
+</CYPRESSTAG>
+Warp synthesis phase: Elapsed time ==> 0s.990ms
+<CYPRESSTAG name="Fitter results...">
+<CYPRESSTAG name="Fitter startup details...">
+cyp3fit: V3.1.0.2177, Family: PSoC3, Started at: Thursday, 06 April 2017 23:05:37
+Options: -yv2 -q10 -ygs -o2 -v3 -.fftcfgtype=LE -ya -.fftprj=C:\Users\Zachary\Desktop\embedded\Ozturk Lab - 5 - Rev 1\Electronic Scale\Electronic Scale.cydsn\Electronic Scale.cyprj -d CY8C4247LQI-BL483 Electronic Scale.v -verilog
+</CYPRESSTAG>
+<CYPRESSTAG name="Design parsing">
+Design parsing phase: Elapsed time ==> 0s.109ms
+</CYPRESSTAG>
+<CYPRESSTAG name="Tech mapping">
+<CYPRESSTAG name="Initial Mapping" icon="FILE_RPT_TECHM">
+Assigning clock BLE_1_LFCLK to clock LFCLK because it is a pass-through
+<CYPRESSTAG name="Global Clock Selection" icon="FILE_RPT_TECHM">
+    Fixed Function Clock 6: Automatic-assigning  clock 'ADC_intClock'. Signal=\ADC:Net_1845_ff6\
+<CYPRESSTAG name="UDB Clock/Enable Remapping Results">
+</CYPRESSTAG>
+</CYPRESSTAG>
+
+Removing unused cells resulting from optimization
+Done removing unused cells.
+<CYPRESSTAG name="Duplicate Macrocell detection">
+</CYPRESSTAG>
+</CYPRESSTAG>
+<CYPRESSTAG name="Duplicate Macrocell detection">
+</CYPRESSTAG>
+<CYPRESSTAG name="Design Equations" icon="FILE_RPT_EQUATION">
+
+------------------------------------------------------------
+Design Equations
+------------------------------------------------------------
+    <CYPRESSTAG name="Pin listing">
+
+    ------------------------------------------------------------
+    Pin listing
+    ------------------------------------------------------------
+
+    Pin : Name = Vin_1(0)
+        Attributes:
+            In Group/Port: True
+            In Sync Option: AUTO
+            Out Sync Option: AUTO
+            Interrupt generated: False
+            Interrupt mode: NONE
+            Drive mode: HI_Z_ANALOG
+            VTrip: EITHER
+            Slew: FAST
+            Input Sync needed: False
+            Output Sync needed: False
+            SC shield enabled: False
+            POR State: ANY
+            LCD Mode: COMMON
+            Register Mode: RegComb
+            CaSense Mode: NEITHER
+            Treat as pin: True
+            Is OE Registered: False
+            Uses Analog: True
+            Can contain Digital: False
+            Is SIO: False
+            SIO Output Buf: NONREGULATED
+            SIO Input Buf: SINGLE_ENDED
+            SIO HiFreq: LOW
+            SIO Hyst: DISABLED
+            SIO Vtrip: MULTIPLIER_0_5
+            SIO RefSel: VCC_IO
+            Required Capabilitites: ANALOG
+            Initial Value: 1
+            IO Voltage: 0
+        PORT MAP (
+            pa_out => Vin_1(0)__PA ,
+            analog_term => \ADC:mux_bus_minus_0\ ,
+            pad => Vin_1(0)_PAD );
+        Properties:
+        {
+        }
+    </CYPRESSTAG>
+    <CYPRESSTAG name="Macrocell listing" icon="FILE_RPT_EQUATION">
+    </CYPRESSTAG>
+    <CYPRESSTAG name="Datapath listing">
+    </CYPRESSTAG>
+    <CYPRESSTAG name="Status register listing">
+    </CYPRESSTAG>
+    <CYPRESSTAG name="StatusI register listing">
+    </CYPRESSTAG>
+    <CYPRESSTAG name="Sync listing">
+    </CYPRESSTAG>
+    <CYPRESSTAG name="Control register listing">
+    </CYPRESSTAG>
+    <CYPRESSTAG name="Count7 listing">
+    </CYPRESSTAG>
+    <CYPRESSTAG name="DRQ listing">
+    </CYPRESSTAG>
+    <CYPRESSTAG name="Interrupt listing">
+
+    ------------------------------------------------------------
+    Interrupt listing
+    ------------------------------------------------------------
+
+    interrupt: Name =\ADC:IRQ\
+        PORT MAP (
+            interrupt => \ADC:Net_3112\ );
+        Properties:
+        {
+            int_type = "10"
+        }
+
+    interrupt: Name =\BLE_1:bless_isr\
+        PORT MAP (
+            interrupt => \BLE_1:Net_15\ );
+        Properties:
+        {
+            int_type = "10"
+        }
+    </CYPRESSTAG>
+</CYPRESSTAG>
+<CYPRESSTAG name="Technology mapping summary" expanded>
+
+------------------------------------------------------------
+Technology mapping summary
+------------------------------------------------------------
+
+Resource Type                 : Used : Free :  Max :  % Used
+============================================================
+Digital clock dividers        :    0 :    4 :    4 :   0.00%
+Pins                          :    5 :   33 :   38 :  13.16%
+UDB Macrocells                :    0 :   32 :   32 :   0.00%
+UDB Unique Pterms             :    0 :   64 :   64 :   0.00%
+UDB Datapath Cells            :    0 :    4 :    4 :   0.00%
+UDB Status Cells              :    0 :    4 :    4 :   0.00%
+UDB Control Cells             :    0 :    4 :    4 :   0.00%
+Interrupts                    :    2 :   30 :   32 :   6.25%
+Comparator/Opamp Fixed Blocks :    0 :    4 :    4 :   0.00%
+SAR Fixed Blocks              :    1 :    0 :    1 : 100.00%
+CSD Fixed Blocks              :    0 :    1 :    1 :   0.00%
+CapSense Blocks               :    0 :    1 :    1 :   0.00%
+8-bit CapSense IDACs          :    0 :    1 :    1 :   0.00%
+7-bit CapSense IDACs          :    0 :    1 :    1 :   0.00%
+Temperature Sensors           :    0 :    1 :    1 :   0.00%
+Low Power Comparators         :    0 :    2 :    2 :   0.00%
+TCPWM Blocks                  :    0 :    4 :    4 :   0.00%
+Serial Communication Blocks   :    0 :    2 :    2 :   0.00%
+Segment LCD Blocks            :    0 :    1 :    1 :   0.00%
+Bluetooth Low Energy Blocks   :    1 :    0 :    1 : 100.00%
+</CYPRESSTAG>
+Technology Mapping: Elapsed time ==> 0s.718ms
+Tech mapping phase: Elapsed time ==> 0s.906ms
+</CYPRESSTAG>
+<CYPRESSTAG name="Analog Placement">
+<CYPRESSTAG name="Analog Placement">
+Error: apr.M0032: Net "\ADC:mux_bus_plus_0\" is connected to an analog mux but is not connected to another component. (App=cydsfit)
+Analog Placement phase: Elapsed time ==> 0s.187ms
+</CYPRESSTAG>
+<CYPRESSTAG name="Database update...">
+Design database save phase: Elapsed time ==> 0s.156ms
+</CYPRESSTAG>
+cydsfit: Elapsed time ==> 1s.458ms
+</CYPRESSTAG>
+Fitter phase: Elapsed time ==> 1s.583ms
+Fitter phase: Elapsed time ==> 0s.000ms
+Dependency generation phase: Elapsed time ==> 0s.015ms
+Cleanup phase: Elapsed time ==> 0s.000ms
